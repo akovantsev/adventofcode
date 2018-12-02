@@ -1,4 +1,4 @@
-(ns adventofcode.2018.day1)
+(ns adventofcode.2018.day1 "https://adventofcode.com/2018/day/1")
 
 
 
