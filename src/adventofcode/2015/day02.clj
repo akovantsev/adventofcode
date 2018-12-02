@@ -1,4 +1,4 @@
-(ns adventofcode.2015.day2
+(ns adventofcode.2015.day02
   "https://adventofcode.com/2015/day/2"
   (:require [clojure.string :as str]))
 
