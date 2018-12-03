@@ -1,4 +1,4 @@
-(ns adventofcode.2018.day3
+(ns adventofcode.2018.day03
   (:require [clojure.string :as str]
             [clojure.set :as set]))
 

@@ -1,4 +1,4 @@
-(ns adventofcode.2018.day2 "https://adventofcode.com/2018/day/2")
+(ns adventofcode.2018.day02 "https://adventofcode.com/2018/day/2")
 
 
 (defn f1 [ids]
