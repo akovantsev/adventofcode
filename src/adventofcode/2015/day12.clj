@@ -1,6 +1,5 @@
 (ns adventofcode.2015.day12
-  (:require [clojure.data.json :as json]
-            [clojure.walk :as walk]))
+  (:require [clojure.data.json :as json]))
 
 (def input
   (json/read-str
