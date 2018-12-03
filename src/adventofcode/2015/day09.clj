@@ -25,7 +25,7 @@
     legs))
 
 
-(defn f1 [input]
+(defn -f [input rank-fn]
   (let [all-legs  (parse-input input)
         MAP       (distances all-legs)
         all-nodes (->> all-legs (mapcat pop) (into #{}))
@@ -43,7 +43,7 @@
         (->> done
           (filter #(-> % :togo empty?))
           (map :total)
-          (apply min))
+          (apply rank-fn))
 
         (let [[route & todo] todo
               {:keys [:options :total :current :togo :path]} route
@@ -58,9 +58,13 @@
             (recur (conj done route) todo)
             (recur done (into todo routes))))))))
 
+(defn f1 [s] (-f s min))
+(defn f2 [s] (-f s max))
 
 (assert (not= 719 (f1 input)))
 (assert (= 207 (f1 input)))
 (assert (= 605 (f1 test-input)))
+(assert (= 982 (f2 test-input)))
+(assert (= 804 (f2 input)))
 
 
