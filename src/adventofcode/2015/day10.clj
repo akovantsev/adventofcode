@@ -15,12 +15,17 @@
 (assert (= (xform "1211") "111221"))
 (assert (= (xform "111221") "312211"))
 
-(defn f1 [s]
+(defn -f [s n]
   (->> s
     (iterate xform)
-    (take 41)
+    (take (inc n))
     (last)
     (count)))
 
+(defn f1 [s] (-f s 40))
+(defn f2 [s] (-f s 50))
+
+
 (assert (not= (f1 input) 252594))
 (assert (= (f1 input) 329356))
+(assert (= (f2 input) 4666278))
