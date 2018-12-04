@@ -46,10 +46,11 @@
 (defn collect [lines]
   (let [vconj (fnil conj [])
         rf    (fn rf [[id M] {:as line :keys [:h :m :raw]}]
-                (let [new-id (second (re-find #"Guard #(\d+) begins shift" raw))]
-                  (if new-id
-                    [new-id M]
-                    [id (update M id vconj [h m])])))]
+                (if-let [new-id (->> raw
+                                  (re-find #"Guard #(\d+) begins shift")
+                                  second)]
+                  [new-id M]
+                  [id (update M id vconj [h m])]))]
     (->> lines
       (reduce rf [nil {}])
       (second))))
