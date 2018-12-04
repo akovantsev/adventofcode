@@ -21,9 +21,9 @@
 (defn to-int [x] (Integer/parseInt x 10))
 
 (defn max-minute [log]
-  (assert (->> log (map first) (every? #{"00"})))  ;; if not - reimplement :)
+  (assert (->> log (map :h) (every? #{"00"})))  ;; if not - reimplement :)
   (let [freqs (->> log
-                (map second)
+                (map :m)
                 (map to-int)
                 (partition 2)
                 (mapcat (partial apply range))
@@ -43,21 +43,21 @@
     logs))
 
 
-(defn collect [lines]
+(defn group-by-id [lines]
   (let [vconj (fnil conj [])
         rf    (fn rf [[id M] {:as line :keys [:h :m :raw]}]
                 (if-let [new-id (->> raw
                                   (re-find #"Guard #(\d+) begins shift")
                                   second)]
                   [new-id M]
-                  [id (update M id vconj [h m])]))]
+                  [id (update M id vconj line)]))]
     (->> lines
       (reduce rf [nil {}])
       (second))))
 
 
 (defn -f [input sort-f]
-  (let [{:keys [:id :m]} (->> input parse-input collect stats (sort-by sort-f >) first)]
+  (let [{:keys [:id :m]} (->> input parse-input group-by-id stats (sort-by sort-f >) first)]
     (* id m)))
 
 (defn f1 [input] (-f input :t))
