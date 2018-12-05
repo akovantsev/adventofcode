@@ -11,7 +11,7 @@
   (->> input
     (str/split-lines)
     (map edn/read-string)
-    (map (partial conj [0]))
+    (map vector (repeat 0))
     (apply combo/cartesian-product)
     (filter #(->> % (reduce +) (= total)))))
 
