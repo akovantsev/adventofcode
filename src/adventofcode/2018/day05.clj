@@ -20,4 +20,18 @@
       '())
     (count)))
 
+
+(def letters "abcdefghijklmnopqrstuvwxyz")
+(def polymers (->> (interleave letters (str/upper-case letters))
+                (partition 2)
+                (map set)))
+(defn f2 [input]
+  (->> polymers
+    (map #(remove % input))
+    (map f1)
+    (apply min)))
+
+
+
+(assert (= 6020 (f2 input)))
 (assert (= 11310 (f1 input)))
