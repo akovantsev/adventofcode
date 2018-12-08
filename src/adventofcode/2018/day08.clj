@@ -48,26 +48,28 @@
 
 (defn f2 [[n m & tail :as xs]]
   (loop [todo   tail
-         levels (list [n m []])]
-    (let [[[chil nmeta scores] & ancestors] levels]
+         family (list [n m []])]
+    (let [[[children-c self-n-meta chi-scores] & ancestors] family
+          [parent & grandparents]                           ancestors
+          [siblings-c parent-n-meta sib-scores]             parent]
       (cond
         ;; end
-        (and (empty? ancestors) (zero? chil))
-        (get-score nmeta scores todo)
+        (and (empty? ancestors) (zero? children-c))
+        (get-score self-n-meta chi-scores todo)
 
         ;; up, then right
-        (zero? chil)
-        (let [node-score (get-score nmeta scores todo)
-              todo (drop nmeta todo)
-              [[chil nmeta scores] & ancestors] ancestors]
-          (recur
-            todo
-            (conj ancestors [(dec chil) nmeta (conj scores node-score)])))
+        (zero? children-c)
+        (let [self-score     (get-score self-n-meta chi-scores todo)
+              todo           (drop self-n-meta todo)
+              updated-parent [(dec siblings-c)
+                              parent-n-meta
+                              (conj sib-scores self-score)]]
+          (recur todo (conj grandparents updated-parent)))
 
         ;; down
         :else
-        (let [[chil nmeta & todo] todo]
-          (recur todo (conj levels [chil nmeta []])))))))
+        (let [[chi-chil chi-n-meta & todo] todo]
+          (recur todo (conj family [chi-chil chi-n-meta []])))))))
 
 
 
