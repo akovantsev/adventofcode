@@ -37,13 +37,13 @@
           (->> todo (take 2) (conj levels)))))))
 
 
-(defn get-score [nmeta scores xs]
-  (let [metas (take nmeta xs)]
-    (if (empty? scores)
+(defn get-score [self-n-meta chi-scores todo]
+  (let [metas (take self-n-meta todo)]
+    (if (empty? chi-scores)
       (reduce + 0 metas)
       (reduce + 0 (->> metas
                     (map dec)
-                    (map #(get scores % 0)))))))
+                    (map #(get chi-scores % 0)))))))
 
 
 (defn f2 [[n m & tail :as xs]]
