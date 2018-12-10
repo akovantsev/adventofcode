@@ -1,70 +1,58 @@
-(ns adventofcode.2018.day09)
+(ns adventofcode.2018.day09
+  (:import [java.util Deque ArrayDeque]))
 
 
-(defn insert-at [v ^long idx x]
-  (into
-    (conj (subvec v 0 idx) x)
-    (subvec v idx)))
+(set! *print-length* 100)
 
-(defn remove-at [v ^long idx]
-  (into
-    (subvec v 0 idx)
-    (subvec v (inc idx))))
+(defn clockwise! [^Deque q]
+  (->> (.removeFirst q) (.addLast q))
+  q)
 
-(defn next-pos ^long [v ^long curr-idx ^long dif]
-  (let [total    (count v)
-        next-idx (+ curr-idx dif)]
-    (cond
-      (> next-idx total)
-      (- next-idx total)
+(defn counterclockwise! [^Deque q]
+  (->> (.removeLast q) (.addFirst q))
+  q)
 
-      (neg? next-idx)
-      (+ total next-idx)
 
-      :else next-idx)))
-
-(set! *print-length* 200)
-(set! *warn-on-reflection* true)
-(set! *unchecked-math* true)
-
-(defn -f [total-players total-marbles]
+(defn f2 [total-players total-marbles]
   (time
-    (loop [turns   (->> (range total-players) (cycle) (take total-marbles))
-           marble  1
-           field   [0]
-           cur-idx 0
-           scores  (zipmap (range total-players) (repeat 0))
-           score-idx 1]
-      (when (zero? (rem marble 10000)) (prn marble))
-      (prn field)
-      (if (empty? turns)
-        (->> scores vals (reduce max))
-        (let [[player & turns] turns]
-          (if (= 23 score-idx)
-            (let [eject-idx    (next-pos field cur-idx -7)
-                  eject-marble (get field eject-idx)]
-              (recur turns
-                (inc marble)
-                (remove-at field eject-idx)
-                eject-idx
-                (update scores player + marble eject-marble)
-                1))
-            (let [insert-idx  (next-pos field cur-idx 2)]
-              (recur turns
-                (inc marble)
-                (insert-at field insert-idx marble)
-                insert-idx
-                scores
-                (inc score-idx)))))))))
+    (let [!q             (doto (new ArrayDeque) (.add 0))
+          insert-marble! (fn [marble]
+                           (doto !q
+                             (clockwise!)
+                             (.addLast marble)))
+          eject-marble!  (fn []
+                           (doto !q
+                             (counterclockwise!)
+                             (counterclockwise!)
+                             (counterclockwise!)
+                             (counterclockwise!)
+                             (counterclockwise!)
+                             (counterclockwise!)
+                             (counterclockwise!))
+                           (let [el (.removeLast !q)]
+                             (clockwise! !q)
+                             el))]
+      (loop [turns  (cycle (range total-players))
+             marble 1
+             scores {}]
+        (if (> marble total-marbles)
+          (->> scores vals (reduce max))
+          (let [[player & turns] turns]
+            (if (= 0 (rem marble 23))
+              (let [ejected (eject-marble!)
+                    scores  (update scores player (fnil + 0) marble ejected)]
+                (recur turns (inc marble) scores))
+              (do
+                (insert-marble! marble)
+                (recur turns (inc marble) scores)))))))))
 
 
-;(assert (= (-f 9 25) 32))
-;(assert (= (-f 10 1618) 8317))
-;(assert (= (-f 13 7999) 146373))
-;(assert (= (-f 17 1104) 2764))
-;(assert (= (-f 21 6111) 54718))
-;(assert (= (-f 30 5807) 37305))
-
-;(assert (= (-f 479 71035) 367634))
-
-#_(-f 479 7103500)
+(assert (= (f2 9 25) 32))
+(assert (= (f2 10 1618) 8317))
+(assert (= (f2 10 1618) 8317))
+(assert (= (f2 13 7999) 146373))
+(assert (= (f2 17 1104) 2764))
+(assert (= (f2 21 6111) 54718))
+(assert (= (f2 30 5807) 37305))
+(assert (= (f2 479 71035) 367634))
+(assert (= (f2 479 7103500) 3020072891))
