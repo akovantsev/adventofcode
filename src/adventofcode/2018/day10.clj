@@ -16,21 +16,18 @@
 
 (defn frame [points]
   (reduce
-    (fn [[xs ys x1 x2 y1 y2] [px py]]
-      [(conj xs px) (conj ys py)
-       (min x1 px) (max x2 px)
+    (fn [[x1 x2 y1 y2] [px py]]
+      [(min x1 px) (max x2 px)
        (min y1 py) (max y2 py)])
-    [#{} #{} 0 0 0 0]
+    [0 0 0 0]
     points))
 
 
 (defn set-stats [points]
-  (let [[xs ys & [x1 x2 y1 y2 :as corners]] (frame points)]
+  (let [[_x1 _x2 y1 y2 :as corners] (frame points)]
     {:points  points
      :corners corners
-     :height  (- y2 y1)
-     :width   (- x2 x1)
-     :count   (+ (count xs) (count ys))}))
+     :height  (- y2 y1)}))
 
 
 (defn make-canvas [{:keys [:points :corners]}]
