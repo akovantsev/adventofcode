@@ -32,13 +32,13 @@
 
 (defn make-canvas [{:keys [:points :corners]}]
   (let [[x1 x2 y1 y2] corners
-        blanks (for [x (range x1 (inc x2))
-                     y (range y1 (inc y2))]
-                 [x y])
-        canvas (as-> blanks $
-                 (reduce #(assoc! %1 %2 \.) (transient {}) $)
-                 (reduce #(assoc! %1 %2 \#) $ points)
-                 (persistent! $))]
+        all-coords (for [x (range x1 (inc x2))
+                         y (range y1 (inc y2))]
+                     [x y])
+        canvas     (as-> all-coords $$$
+                     (reduce #(assoc! %1 %2 \.) (transient {}) $$$)
+                     (reduce #(assoc! %1 %2 \#) $$$ points)
+                     (persistent! $$$))]
     (->> canvas
       (sort-by first)
       (partition-by ffirst)
