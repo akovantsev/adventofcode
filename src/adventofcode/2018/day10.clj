@@ -14,12 +14,12 @@
 
 
 
-(defn frame [points]
+(defn frame [[[x y] & points]]
   (reduce
     (fn [[x1 x2 y1 y2] [px py]]
       [(min x1 px) (max x2 px)
        (min y1 py) (max y2 py)])
-    [0 0 0 0]
+    [x x y y]
     points))
 
 
@@ -61,7 +61,7 @@
   (->> stats (map :height) (apply >=)))
 
 
-(defn changes [input]
+(defn frames [input]
   (let [lines      (->> input
                      (str/split-lines)
                      (map parse-line))
@@ -75,7 +75,7 @@
 
 (defn f1 [input]
   (->> input
-    (changes)
+    (frames)
     (drop-while shrinking?)
     (ffirst)
     (draw "/tmp/day10.txt")))
@@ -83,7 +83,7 @@
 
 (defn f2 [input]
   (->> input
-    (changes)
+    (frames)
     (take-while shrinking?)
     (count)))
 
