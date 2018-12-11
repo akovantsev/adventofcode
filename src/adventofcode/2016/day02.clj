@@ -49,12 +49,12 @@
   (let [move (partial move keypad)
         start (-> keypad  set/map-invert (get k))]
     (loop [[line & todo] (str/split-lines input)
-           pos     start
-           buttons []]
+           pos    start
+           clicks []]
       (if (nil? line)
-        (-> buttons str/join)
+        (->> clicks (map keypad) str/join)
         (let [new-pos (reduce move pos line)]
-          (recur todo new-pos (conj buttons (keypad new-pos))))))))
+          (recur todo new-pos (conj clicks new-pos)))))))
 
 (def f1 (partial hack \5 square-keypad))
 (def f2 (partial hack \5 diamond-keypad))
