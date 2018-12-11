@@ -46,8 +46,8 @@
 
 
 (defn hack [k keypad input]
-  (let [move (partial move keypad)
-        start (-> keypad  set/map-invert (get k))]
+  (let [move  (partial move keypad)
+        start (-> keypad set/map-invert (get k))]
     (loop [[line & todo] (str/split-lines input)
            pos    start
            clicks []]
