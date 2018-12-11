@@ -1,4 +1,5 @@
-(ns adventofcode.utils)
+(ns adventofcode.utils
+  (:import [java.security MessageDigest]))
 
 
 (def letters "abcdefghijklmnopqrstuvwxyz")
@@ -9,3 +10,13 @@
   (into {}
     (for [[sym val] &env]
       [(keyword (name sym)) sym])))
+
+
+(defn md5
+  ;; https://gist.github.com/jizhang/4325757#gistcomment-1993162
+  [^String s]
+  (->> s
+    .getBytes
+    (.digest (MessageDigest/getInstance "MD5"))
+    (BigInteger. 1)
+    (format "%032x")))
