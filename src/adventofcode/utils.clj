@@ -1,6 +1,8 @@
 (ns adventofcode.utils)
 
 
+(def letters "abcdefghijklmnopqrstuvwxyz")
+
 (defmacro locals-map
   ;; https://gist.github.com/noisesmith/3490f2d3ed98e294e033b002bc2de178
   []
