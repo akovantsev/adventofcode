@@ -11,6 +11,9 @@
     (for [[sym val] &env]
       [(keyword (name sym)) sym])))
 
+(defmacro print-locals-map []
+  `(clojure.pprint/pprint (locals-map)))
+
 
 (defn md5
   ;; https://gist.github.com/jizhang/4325757#gistcomment-1993162
