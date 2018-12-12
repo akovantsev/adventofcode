@@ -1,6 +1,5 @@
 (ns adventofcode.2018.day12
-  (:require [clojure.string :as str]
-            [clojure.set :as set]))
+  (:require [clojure.string :as str]))
 
 (set! *print-length* 200)
 (def initial-state "#...####.##..####..#.##....##...###.##.#..######..#..#..###..##.#.###.#####.##.#.#.#.##....#..#..#..")
