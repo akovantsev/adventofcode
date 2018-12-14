@@ -14,6 +14,12 @@
 (defmacro print-locals-map []
   `(clojure.pprint/pprint (locals-map)))
 
+(defmacro print-locals-including [& ks]
+  `(clojure.pprint/pprint (select-keys (locals-map) ~ks)))
+
+(defmacro print-locals-excluding [& ks]
+  `(clojure.pprint/pprint (dissoc (locals-map) ~@ks)))
+
 
 (defn md5
   ;; https://gist.github.com/jizhang/4325757#gistcomment-1993162
