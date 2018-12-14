@@ -67,8 +67,8 @@
           solution' (partial solution match)]
       (loop [[idx1 idx2 scores] [0 1 [3 7]]]
         (or
-          (solution' scores 0)
           (solution' scores 1)
+          (solution' scores 0)
           (recur (tick idx1 idx2 scores)))))))
 
 
