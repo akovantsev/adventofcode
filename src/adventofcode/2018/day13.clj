@@ -23,7 +23,7 @@
       (transient {}))
     (persistent!)))
 
-(def CART-COVERS-TRACK
+(def ROAD-UNDER-CART
   {\^ \|
    \v \|
    \> \-
@@ -47,7 +47,7 @@
 (def ROAD
   (reduce
     (fn rf [m {::keys [x y]}]
-      (update m [x y] CART-COVERS-TRACK))
+      (update m [x y] ROAD-UNDER-CART))
     INPUT-LAYOUT
     INITIAL-CARTS))
 
