@@ -1,7 +1,6 @@
 (ns adventofcode.2018.day14
   (:require [clojure.string :as str]
-            [clojure.edn :as edn]
-            [adventofcode.utils :as u]))
+            [clojure.edn :as edn]))
 
 
 (def input 157901)
