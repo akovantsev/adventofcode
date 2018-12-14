@@ -112,7 +112,7 @@
       (cond
         (and (-> todo count (= 0))
              (-> done count (= 1)))
-        (-> done first val coords)
+        (-> done first key)
 
         (empty? todo)
         (recur (-> done vals sorted-index-by-xy) {})
