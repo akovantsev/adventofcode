@@ -204,3 +204,57 @@
 
 (assert (= (f1 input) 196200))
 "Elapsed time: 4399.123038 msecs"
+
+
+(defn f2 [input]
+  (time
+    (let [INPUT   (->> input
+                    (str/split-lines)
+                    (map-indexed parse-idxed-line)
+                    (apply map vector)
+                    (map (partial reduce into)))
+          ROOM    (apply sorted-set-by reading-order (first INPUT))
+          PLAYERS (second INPUT)]
+      (loop [round   0
+             moved?  false
+             todo    (keys PLAYERS)
+             players PLAYERS]
+        (if (empty? todo)
+          ;; next round:
+          (recur (inc round) false (keys players) players)
+          (let [[pxy & todo]  todo
+                player       (get players pxy)]
+            ;; find adjacent enemy:
+            (if-let [[exy enemy] (weakest-in-range ROOM players pxy player)]
+              (if (would-die? enemy)
+                ;; kill:
+                (recur round false (remove #{exy} todo) (dissoc players exy))
+                ;; damage:
+                (recur round false todo (update-in players [exy :hp] - DAMAGE)))
+
+              (if moved?
+                ;; avoid double moves in 1 turn
+                (recur round false todo players)
+                ;; find all enemies in the room:
+                (if-let [enemies (seq (all-enemies player players))]
+                  ;; all open attack positions:
+                  (if-let [open-xys (->> enemies
+                                      (sequence
+                                        (comp
+                                          (map key)
+                                          (mapcat (partial free-xys ROOM players))
+                                          (distinct)))
+                                      (seq))]
+                    ;; find next possible step:
+                    (if-let [next-xy (get-next-xy ROOM players pxy open-xys)]
+                      ;; move:
+                      (do ;(prn [:move pxy next-xy open-xys])
+                        (recur round true
+                          (conj todo next-xy)
+                          (-> players (dissoc pxy) (assoc next-xy player))))
+                      ;; do nothing:
+                      (recur round false todo players))
+                    ;; do nothing:
+                    (recur round false todo players))
+                  ;; exit:
+                  (->> players (vals) (map :hp) (reduce + 0) (* round)))))))))))
