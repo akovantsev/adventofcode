@@ -107,16 +107,20 @@
 
 (defn get-next-xy [room players pxy target-xys]
   (->> target-xys
-    (sort-by (partial city-distance pxy))
+    (map (partial city-distance pxy))
+    (map vector target-xys)
+    (sort-by second)
     (reduce
-      (fn rf [[shortest xy] target-xy]
-        (let [paths   (shortest-paths room players shortest pxy target-xy)
-              len     (-> paths first count)
-              next-xy (->> paths (map first) (sort reading-order) (first))]
-          (cond
-            (nil? next-xy)   [shortest xy]
-            (< len shortest) [len next-xy]
-            (= len shortest) [len (->> [xy next-xy] (sort reading-order) (first))])))
+      (fn rf [[shortest xy] [target-xy distance]]
+        (if (< shortest distance)
+          [shortest xy]
+          (let [paths   (shortest-paths room players shortest pxy target-xy)
+                len     (-> paths first count)
+                next-xy (->> paths (map first) (sort reading-order) (first))]
+            (cond
+              (nil? next-xy)   [shortest xy]
+              (< len shortest) [len next-xy]
+              (= len shortest) [len (->> [xy next-xy] (sort reading-order) (first))]))))
       [##Inf nil])
     (second)))
 
@@ -204,9 +208,9 @@
 (assert (= (f1 input-28944) 28944))
 (assert (= (f1 input-18740) 18740))
 
-"Elapsed time: 13.534497 msecs"
-"Elapsed time: 10.377443 msecs"
-"Elapsed time: 8.67513 msecs"
-"Elapsed time: 4.283037 msecs"
-"Elapsed time: 8.818345 msecs"
-"Elapsed time: 4307.355468 msecs"
+"Elapsed time: 13.70164 msecs"
+"Elapsed time: 9.196221 msecs"
+"Elapsed time: 8.537359 msecs"
+"Elapsed time: 4.347441 msecs"
+"Elapsed time: 8.242093 msecs"
+"Elapsed time: 4242.487794 msecs"
