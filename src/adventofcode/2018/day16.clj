@@ -1,7 +1,8 @@
 (ns adventofcode.2018.day16
   (:require [clojure.string :as str]
             [clojure.edn :as edn]
-            [adventofcode.utils :as u]))
+            [adventofcode.utils :as u]
+            [clojure.set :as set]))
 
 (set! *print-length* 40)
 
@@ -69,3 +70,47 @@
       :else                (recur todo amount))))
 
 (assert (= (f1) 592))
+
+
+(defn op-matches-all? [samples op-name]
+  (->> samples
+    (map (partial op-matches? op-name))
+    (every? true?)))
+
+(def sconj (fnil conj #{}))
+
+(defn unambiguify [names-to-nums]
+  (let [fact? #(-> % val count (= 1))]
+    (loop [solved  {}
+           guesses names-to-nums]
+      (if (empty? guesses)
+        solved
+        (let [facts      (filter fact? guesses)
+              bound-nums (->> facts (mapcat second) (set))
+              solved     (reduce
+                           (fn rf1 [m [op-name op-nums]]
+                             (assoc m (first op-nums) op-name))
+                           solved facts)
+              guesses    (as-> guesses $
+                           (reduce
+                             (fn rf2 [m op-name]
+                               (dissoc m op-name))
+                             $ (map key facts))
+                           (reduce
+                             (fn rf3 [m k]
+                               (update m k set/difference bound-nums))
+                             $ (keys $)))]
+          (recur solved guesses))))))
+
+(def OP-BY-NUM
+  (time
+    (->> SAMPLES
+      (group-by #(-> % :op first))
+      (reduce-kv
+        (fn rf [m n samples]
+          (->> OPS
+            (filter (partial op-matches-all? samples))
+            (reduce #(update %1 %2 sconj n) m)))
+        {})
+      (unambiguify))))
+
