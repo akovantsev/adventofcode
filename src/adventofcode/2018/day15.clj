@@ -189,16 +189,16 @@
 
 
 (defn f1 [input]
-  (simulate input false 3))
+  (time (simulate input false 3)))
 
 
 
-;(assert (= 27730 (f1 "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######")))
-;(assert (= 36334 (f1 "#######\n#G..#E#\n#E#E.E#\n#G.##.#\n#...#E#\n#...E.#\n#######")))
-;(assert (= 39514 (f1 "#######\n#E..EG#\n#.#G.E#\n#E.##E#\n#G..#.#\n#..E#.#\n#######")))
-;(assert (= 27755 (f1 "#######\n#E.G#.#\n#.#G..#\n#G.#.G#\n#G..#.#\n#...E.#\n#######")))
-;(assert (= 28944 (f1 "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######")))
-;(assert (= 18740 (f1 "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########")))
+(assert (= 27730 (f1 "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######")))
+(assert (= 36334 (f1 "#######\n#G..#E#\n#E#E.E#\n#G.##.#\n#...#E#\n#...E.#\n#######")))
+(assert (= 39514 (f1 "#######\n#E..EG#\n#.#G.E#\n#E.##E#\n#G..#.#\n#..E#.#\n#######")))
+(assert (= 27755 (f1 "#######\n#E.G#.#\n#.#G..#\n#G.#.G#\n#G..#.#\n#...E.#\n#######")))
+(assert (= 28944 (f1 "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######")))
+(assert (= 18740 (f1 "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########")))
 
 "Elapsed time: 9.785227 msecs"
 "Elapsed time: 8.535596 msecs"
@@ -207,7 +207,7 @@
 "Elapsed time: 8.365766 msecs"
 "Elapsed time: 12.756658 msecs"
 
-;(assert (= (f1 input) 196200))
+(assert (= (f1 input) 196200))
 "Elapsed time: 4399.123038 msecs"
 
 
@@ -219,7 +219,6 @@
           (recur (inc damage))
           score)))))
 
-;(f2 input)
 
 
 (assert (= 4988 (f2 "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######")))
@@ -233,3 +232,6 @@
 "Elapsed time: 112.183938 msecs"
 "Elapsed time: 90.808676 msecs"
 "Elapsed time: 1742.874602 msecs"
+
+#_(assert (= 61750 (f2 input)))
+"Elapsed time: 538665.073576 msecs"
