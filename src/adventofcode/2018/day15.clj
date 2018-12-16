@@ -49,8 +49,8 @@
                        ,,,,,,, [x1 y2] ,,,,,,,}]
         (set/intersection adjacent room)))))
 
-(defn would-die? [player]
-  (-> player :hp (< (inc DAMAGE))))
+(defn would-die? [player damage]
+  (-> player :hp (< (inc damage))))
 
 (defn enemy? [p1 p2]
   (not= (:t p1) (:t p2)))
@@ -124,8 +124,8 @@
     (second)))
 
 
-(defn f1 [input]
-  (time
+(defn simulate [input stop-on-elf-death? elf-dmg]
+  ;(time
     (let [INPUT   (->> input
                     (str/split-lines)
                     (map-indexed parse-idxed-line)
@@ -141,14 +141,20 @@
           ;; next round:
           (recur (inc round) false (keys players) players)
           (let [[pxy & todo]  todo
-                player       (get players pxy)]
+                player        (get players pxy)
+                t             (:t player)
+                damage        (case t
+                                \E elf-dmg
+                                \G DAMAGE)]
             ;; find adjacent enemy:
             (if-let [[exy enemy] (weakest-in-range ROOM players pxy player)]
-              (if (would-die? enemy)
+              (if (would-die? enemy damage)
                 ;; kill:
-                (recur round false (remove #{exy} todo) (dissoc players exy))
+                (if (and stop-on-elf-death? (= t \G))
+                  ::failed
+                  (recur round false (remove #{exy} todo) (dissoc players exy)))
                 ;; damage:
-                (recur round false todo (update-in players [exy :hp] - DAMAGE)))
+                (recur round false todo (update-in players [exy :hp] - damage)))
 
               (if moved?
                 ;; avoid double moves in 1 turn
@@ -175,25 +181,20 @@
                     ;; do nothing:
                     (recur round false todo players))
                   ;; exit:
-                  (->> players (vals) (map :hp) (reduce + 0) (* round)))))))))))
+                  (->> players (vals) (map :hp) (reduce + 0) (* round))))))))))
+
+
+(defn f1 [input]
+  (simulate input false 3))
 
 
 
-
-(def input-27755 "#######\n#E.G#.#\n#.#G..#\n#G.#.G#\n#G..#.#\n#...E.#\n#######")
-(def input-27730 "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######")
-(def input-39514 "#######\n#E..EG#\n#.#G.E#\n#E.##E#\n#G..#.#\n#..E#.#\n#######")
-(def input-28944 "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######")
-(def input-36334 "#######\n#G..#E#\n#E#E.E#\n#G.##.#\n#...#E#\n#...E.#\n#######")
-(def input-18740 "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########")
-
-
-(assert (= (f1 input-27730) 27730))
-(assert (= (f1 input-36334) 36334))
-(assert (= (f1 input-39514) 39514))
-(assert (= (f1 input-27755) 27755))
-(assert (= (f1 input-28944) 28944))
-(assert (= (f1 input-18740) 18740))
+(assert (= 27730 (f1 "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######")))
+(assert (= 36334 (f1 "#######\n#G..#E#\n#E#E.E#\n#G.##.#\n#...#E#\n#...E.#\n#######")))
+(assert (= 39514 (f1 "#######\n#E..EG#\n#.#G.E#\n#E.##E#\n#G..#.#\n#..E#.#\n#######")))
+(assert (= 27755 (f1 "#######\n#E.G#.#\n#.#G..#\n#G.#.G#\n#G..#.#\n#...E.#\n#######")))
+(assert (= 28944 (f1 "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######")))
+(assert (= 18740 (f1 "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########")))
 
 "Elapsed time: 9.785227 msecs"
 "Elapsed time: 8.535596 msecs"
@@ -208,53 +209,23 @@
 
 (defn f2 [input]
   (time
-    (let [INPUT   (->> input
-                    (str/split-lines)
-                    (map-indexed parse-idxed-line)
-                    (apply map vector)
-                    (map (partial reduce into)))
-          ROOM    (apply sorted-set-by reading-order (first INPUT))
-          PLAYERS (second INPUT)]
-      (loop [round   0
-             moved?  false
-             todo    (keys PLAYERS)
-             players PLAYERS]
-        (if (empty? todo)
-          ;; next round:
-          (recur (inc round) false (keys players) players)
-          (let [[pxy & todo]  todo
-                player       (get players pxy)]
-            ;; find adjacent enemy:
-            (if-let [[exy enemy] (weakest-in-range ROOM players pxy player)]
-              (if (would-die? enemy)
-                ;; kill:
-                (recur round false (remove #{exy} todo) (dissoc players exy))
-                ;; damage:
-                (recur round false todo (update-in players [exy :hp] - DAMAGE)))
+    (loop [damage 4]
+      (let [score (simulate input true damage)]
+        (if (= score ::failed)
+          (recur (inc damage))
+          score)))))
 
-              (if moved?
-                ;; avoid double moves in 1 turn
-                (recur round false todo players)
-                ;; find all enemies in the room:
-                (if-let [enemies (seq (all-enemies player players))]
-                  ;; all open attack positions:
-                  (if-let [open-xys (->> enemies
-                                      (sequence
-                                        (comp
-                                          (map key)
-                                          (mapcat (partial free-xys ROOM players))
-                                          (distinct)))
-                                      (seq))]
-                    ;; find next possible step:
-                    (if-let [next-xy (get-next-xy ROOM players pxy open-xys)]
-                      ;; move:
-                      (do ;(prn [:move pxy next-xy open-xys])
-                        (recur round true
-                          (conj todo next-xy)
-                          (-> players (dissoc pxy) (assoc next-xy player))))
-                      ;; do nothing:
-                      (recur round false todo players))
-                    ;; do nothing:
-                    (recur round false todo players))
-                  ;; exit:
-                  (->> players (vals) (map :hp) (reduce + 0) (* round)))))))))))
+;(f2 input)
+
+
+(assert (= 4988 (f2 "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######")))
+(assert (= 31284 (f2 "#######\n#E..EG#\n#.#G.E#\n#E.##E#\n#G..#.#\n#..E#.#\n#######")))
+(assert (= 3478 (f2 "#######\n#E.G#.#\n#.#G..#\n#G.#.G#\n#G..#.#\n#...E.#\n#######")))
+(assert (= 6474 (f2 "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######")))
+(assert (= 1140 (f2 "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########")))
+
+"Elapsed time: 80.792273 msecs"
+"Elapsed time: 9.331685 msecs"
+"Elapsed time: 118.772361 msecs"
+"Elapsed time: 139.921578 msecs"
+"Elapsed time: 1887.330786 msecs"
