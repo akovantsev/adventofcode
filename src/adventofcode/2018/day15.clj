@@ -79,9 +79,8 @@
          done     []
          todo     (->> start-xy
                     (free-xys room players)
-                    (mapv (fn mf1 [xy] [#{xy} [xy]])) ;; [visited path]
+                    (mapv (fn mf1 [xy] [(transient #{xy}) [xy]])) ;; [visited path]
                     (into (PersistentQueue/EMPTY)))]
-    ;(u/print-locals-map)
     (if (empty? todo)
       done
       (let [[visited p] (peek todo)
@@ -98,7 +97,7 @@
                              (free-xys room players)
                              (remove visited)
                              (map (fn mf2 [xy]
-                                    [(conj visited xy) (conj p xy)])))]
+                                    [(conj! visited xy) (conj p xy)])))]
             (recur shortest done (into todo next-paths))))))))
 
 (set! *unchecked-math* true)
@@ -208,9 +207,9 @@
 (assert (= (f1 input-28944) 28944))
 (assert (= (f1 input-18740) 18740))
 
-"Elapsed time: 13.70164 msecs"
-"Elapsed time: 9.196221 msecs"
-"Elapsed time: 8.537359 msecs"
-"Elapsed time: 4.347441 msecs"
-"Elapsed time: 8.242093 msecs"
-"Elapsed time: 4242.487794 msecs"
+"Elapsed time: 9.81467 msecs"
+"Elapsed time: 8.82736 msecs"
+"Elapsed time: 8.564022 msecs"
+"Elapsed time: 3.863125 msecs"
+"Elapsed time: 8.305399 msecs"
+"Elapsed time: 12.305171 msecs"
