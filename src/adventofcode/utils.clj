@@ -29,3 +29,9 @@
     (.digest (MessageDigest/getInstance "MD5"))
     (BigInteger. 1)
     (format "%032x")))
+
+(defn city-distance
+  [[^int x1 ^int y1]
+   [^int x2 ^int y2]]
+  (+ (Math/abs (- x2 x1))
+    (Math/abs (- y1 y2))))

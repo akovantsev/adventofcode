@@ -1,6 +1,7 @@
 (ns adventofcode.2018.day06
   (:require [clojure.string :as str]
-            [clojure.edn :as edn]))
+            [clojure.edn :as edn]
+            [adventofcode.utils :as u]))
 
 
 
@@ -25,11 +26,6 @@
         y (range MINX (inc MAXY))]
     [x y]))
 
-(defn city-distance
-  [[^int x1 ^int y1]
-   [^int x2 ^int y2]]
-  (+ (Math/abs (- x2 x1))
-     (Math/abs (- y1 y2))))
 
 (defn border? [[^int x ^int y]]
   (or (#{MINX MAXX} x) (#{MINY MAXY} y)))
@@ -37,7 +33,7 @@
 
 (defn closest [p points]
   (let [close (->> points
-                (map city-distance (repeat p))
+                (map u/city-distance (repeat p))
                 (map vector points)
                 (sort-by second <)
                 (partition-by second)
@@ -64,7 +60,7 @@
   (->> all-points
     (sequence
       (comp
-        (map #(map city-distance (repeat %) center-points))
+        (map #(map u/city-distance (repeat %) center-points))
         (map #(reduce + %))
         (filter #(< % 10000))))
     (count)))

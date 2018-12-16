@@ -1,8 +1,8 @@
 (ns adventofcode.2018.day15
   (:import [clojure.lang PersistentQueue])
-  (:require [clojure.string :as str]
-            [adventofcode.utils :as u]
-            [clojure.set :as set]))
+  (:require [clojure.set :as set]
+            [clojure.string :as str]
+            [adventofcode.utils :as u]))
 
 (set! *print-length* 100)
 
@@ -74,8 +74,8 @@
         (-> players keys set)))))
 
 
-(defn shortest-paths [room players start-xy destination-xy]
-  (loop [shortest ##Inf
+(defn shortest-paths [room players limit start-xy destination-xy]
+  (loop [shortest limit
          done     []
          todo     (->> start-xy
                     (free-xys room players)
@@ -100,6 +100,25 @@
                              (map (fn mf2 [xy]
                                     [(conj visited xy) (conj p xy)])))]
             (recur shortest done (into todo next-paths))))))))
+
+(set! *unchecked-math* true)
+(def city-distance (memoize u/city-distance))
+
+
+(defn get-next-xy [room players pxy target-xys]
+  (->> target-xys
+    (sort-by (partial city-distance pxy))
+    (reduce
+      (fn rf [[shortest xy] target-xy]
+        (let [paths   (shortest-paths room players shortest pxy target-xy)
+              len     (-> paths first count)
+              next-xy (->> paths (map first) (sort reading-order) (first))]
+          (cond
+            (nil? next-xy)   [shortest xy]
+            (< len shortest) [len next-xy]
+            (= len shortest) [len (->> [xy next-xy] (sort reading-order) (first))])))
+      [##Inf nil])
+    (second)))
 
 
 (defn f1 [input]
@@ -153,14 +172,7 @@
                                       (seq))]
                     ;; find next possible step:
                     (do ;(prn [:open open-xys enemies player pxy])
-                      (if-let [next-xy (->> open-xys
-                                         (mapcat (partial shortest-paths ROOM players pxy))
-                                         (sort-by count <)
-                                         (partition-by count)
-                                         (first)
-                                         (map first)
-                                         (sort reading-order)
-                                         (first))]
+                      (if-let [next-xy (get-next-xy ROOM players pxy open-xys)]
                         ;; move:
                         (do ;(prn [:move pxy next-xy open-xys])
                           (recur round true
@@ -192,9 +204,9 @@
 (assert (= (f1 input-28944) 28944))
 (assert (= (f1 input-18740) 18740))
 
-"Elapsed time: 14.030754 msecs"
-"Elapsed time: 9.022456 msecs"
-"Elapsed time: 8.470424 msecs"
-"Elapsed time: 4.249771 msecs"
-"Elapsed time: 8.343078 msecs"
-"Elapsed time: 4545.268472 msecs"
+"Elapsed time: 13.534497 msecs"
+"Elapsed time: 10.377443 msecs"
+"Elapsed time: 8.67513 msecs"
+"Elapsed time: 4.283037 msecs"
+"Elapsed time: 8.818345 msecs"
+"Elapsed time: 4307.355468 msecs"
