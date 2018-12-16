@@ -142,8 +142,8 @@
              players PLAYERS]
         ;(u/print-locals-excluding :INPUT :PLAYERS :LIMIT)
         (cond
-          (< LIMIT round)
-          :STOP
+          ;(< LIMIT round)
+          ;:STOP
 
           (empty? todo)
           ;; next round:
@@ -215,3 +215,6 @@
 "Elapsed time: 4.023284 msecs"
 "Elapsed time: 8.365766 msecs"
 "Elapsed time: 12.756658 msecs"
+
+(assert (= (f1 input) 196200))
+"Elapsed time: 4399.123038 msecs"
