@@ -176,10 +176,9 @@
                     ;; find next possible step:
                     (if-let [next-xy (memo-get-next-xy ROOM players pxy open-xys)]
                       ;; move:
-                      (do ;(prn [:move pxy next-xy open-xys])
-                        (recur round true
-                          (conj todo next-xy)
-                          (-> players (dissoc pxy) (assoc next-xy player))))
+                      (recur round true
+                        (conj todo next-xy)
+                        (-> players (dissoc pxy) (assoc next-xy player)))
                       ;; do nothing:
                       (recur round false todo players))
                     ;; do nothing:
