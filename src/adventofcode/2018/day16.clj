@@ -24,7 +24,7 @@
 
 (def OPS #{:addr :addi :mulr :muli :banr :bani :borr :bori :setr :seti :gtir :gtri :gtrr :eqir :eqri :eqrr})
 
-(defn apply-named-op [[op A B C] regs]
+(defn apply-named-op [regs [op A B C]]
   (let [RA (get regs A)
         RB (get regs B)
         RC (case op
@@ -49,7 +49,7 @@
 
 (defn op-matches? [op-name {:as sample :keys [:op :before :after]}]
   (let [named-op (assoc op 0 op-name)]
-    (= after (apply-named-op named-op before))))
+    (= after (apply-named-op before named-op))))
 
 (defn matches-3+? [sample]
   (let [m? #(op-matches? % sample)]
@@ -102,7 +102,7 @@
                              $ (keys $)))]
           (recur solved guesses))))))
 
-(def OP-BY-NUM
+(def NUM-TO-OP
   (time
     (->> SAMPLES
       (group-by #(-> % :op first))
@@ -114,3 +114,12 @@
         {})
       (unambiguify))))
 
+(defn f2 []
+  (let [ops (->> INPUT2
+              str/split-lines
+              (map (partial format "[%s]"))
+              (map edn/read-string)
+              (map #(update % 0 NUM-TO-OP)))]
+    (first (reduce apply-named-op [0 0 0 0] ops))))
+
+(assert (= (f2) 557))
