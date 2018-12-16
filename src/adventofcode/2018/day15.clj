@@ -100,6 +100,8 @@
                                     [(conj! visited xy) (conj p xy)])))]
             (recur shortest done (into todo next-paths))))))))
 
+(def memo-shortest-paths (memoize shortest-paths))
+
 (set! *unchecked-math* true)
 (def city-distance (memoize u/city-distance))
 
@@ -113,7 +115,7 @@
       (fn rf [[shortest xy] [target-xy distance]]
         (if (< shortest distance)
           [shortest xy]
-          (let [paths   (shortest-paths room players shortest pxy target-xy)
+          (let [paths   (memo-shortest-paths room players shortest pxy target-xy)
                 len     (-> paths first count)
                 next-xy (->> paths (map first) (sort reading-order) (first))]
             (cond
@@ -122,6 +124,8 @@
               (= len shortest) [len (->> [xy next-xy] (sort reading-order) (first))]))))
       [##Inf nil])
     (second)))
+
+(def memo-get-next-xy (memoize get-next-xy))
 
 
 (defn simulate [input stop-on-elf-death? elf-dmg]
@@ -170,7 +174,7 @@
                                           (distinct)))
                                       (seq))]
                     ;; find next possible step:
-                    (if-let [next-xy (get-next-xy ROOM players pxy open-xys)]
+                    (if-let [next-xy (memo-get-next-xy ROOM players pxy open-xys)]
                       ;; move:
                       (do ;(prn [:move pxy next-xy open-xys])
                         (recur round true
@@ -189,12 +193,12 @@
 
 
 
-(assert (= 27730 (f1 "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######")))
-(assert (= 36334 (f1 "#######\n#G..#E#\n#E#E.E#\n#G.##.#\n#...#E#\n#...E.#\n#######")))
-(assert (= 39514 (f1 "#######\n#E..EG#\n#.#G.E#\n#E.##E#\n#G..#.#\n#..E#.#\n#######")))
-(assert (= 27755 (f1 "#######\n#E.G#.#\n#.#G..#\n#G.#.G#\n#G..#.#\n#...E.#\n#######")))
-(assert (= 28944 (f1 "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######")))
-(assert (= 18740 (f1 "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########")))
+;(assert (= 27730 (f1 "#######\n#.G...#\n#...EG#\n#.#.#G#\n#..G#E#\n#.....#\n#######")))
+;(assert (= 36334 (f1 "#######\n#G..#E#\n#E#E.E#\n#G.##.#\n#...#E#\n#...E.#\n#######")))
+;(assert (= 39514 (f1 "#######\n#E..EG#\n#.#G.E#\n#E.##E#\n#G..#.#\n#..E#.#\n#######")))
+;(assert (= 27755 (f1 "#######\n#E.G#.#\n#.#G..#\n#G.#.G#\n#G..#.#\n#...E.#\n#######")))
+;(assert (= 28944 (f1 "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######")))
+;(assert (= 18740 (f1 "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########")))
 
 "Elapsed time: 9.785227 msecs"
 "Elapsed time: 8.535596 msecs"
@@ -203,7 +207,7 @@
 "Elapsed time: 8.365766 msecs"
 "Elapsed time: 12.756658 msecs"
 
-(assert (= (f1 input) 196200))
+;(assert (= (f1 input) 196200))
 "Elapsed time: 4399.123038 msecs"
 
 
@@ -224,8 +228,8 @@
 (assert (= 6474 (f2 "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######")))
 (assert (= 1140 (f2 "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########")))
 
-"Elapsed time: 80.792273 msecs"
-"Elapsed time: 9.331685 msecs"
-"Elapsed time: 118.772361 msecs"
-"Elapsed time: 139.921578 msecs"
-"Elapsed time: 1887.330786 msecs"
+"Elapsed time: 85.550414 msecs"
+"Elapsed time: 7.042525 msecs"
+"Elapsed time: 112.183938 msecs"
+"Elapsed time: 90.808676 msecs"
+"Elapsed time: 1742.874602 msecs"
