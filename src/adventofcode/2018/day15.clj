@@ -169,9 +169,11 @@
                 (if-let [enemies (seq (all-enemies player players))]
                   ;; all open attack positions:
                   (if-let [open-xys (->> enemies
-                                      (map key)
-                                      (mapcat (partial free-xys ROOM players))
-                                      (distinct)
+                                      (sequence
+                                        (comp
+                                          (map key)
+                                          (mapcat (partial free-xys ROOM players))
+                                          (distinct)))
                                       (seq))]
                     ;; find next possible step:
                     (do ;(prn [:open open-xys enemies player pxy])
@@ -207,9 +209,9 @@
 (assert (= (f1 input-28944) 28944))
 (assert (= (f1 input-18740) 18740))
 
-"Elapsed time: 9.81467 msecs"
-"Elapsed time: 8.82736 msecs"
-"Elapsed time: 8.564022 msecs"
-"Elapsed time: 3.863125 msecs"
-"Elapsed time: 8.305399 msecs"
-"Elapsed time: 12.305171 msecs"
+"Elapsed time: 9.785227 msecs"
+"Elapsed time: 8.535596 msecs"
+"Elapsed time: 9.521708 msecs"
+"Elapsed time: 4.023284 msecs"
+"Elapsed time: 8.365766 msecs"
+"Elapsed time: 12.756658 msecs"
