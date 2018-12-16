@@ -132,25 +132,14 @@
                     (apply map vector)
                     (map (partial reduce into)))
           ROOM    (apply sorted-set-by reading-order (first INPUT))
-          PLAYERS (second INPUT)
-          LIMIT   60]
-      ;(prn ROOM)
-      ;(prn PLAYERS)
+          PLAYERS (second INPUT)]
       (loop [round   0
              moved?  false
              todo    (keys PLAYERS)
              players PLAYERS]
-        ;(u/print-locals-excluding :INPUT :PLAYERS :LIMIT)
-        (cond
-          ;(< LIMIT round)
-          ;:STOP
-
-          (empty? todo)
+        (if (empty? todo)
           ;; next round:
-          (do ;(prn round)
-            (recur (inc round) false (keys players) players))
-
-          :else
+          (recur (inc round) false (keys players) players)
           (let [[pxy & todo]  todo
                 player       (get players pxy)]
             ;; find adjacent enemy:
@@ -159,8 +148,7 @@
                 ;; kill:
                 (recur round false (remove #{exy} todo) (dissoc players exy))
                 ;; damage:
-                (do ;(prn [:damage player pxy exy enemy])
-                  (recur round false todo (update-in players [exy :hp] - DAMAGE))))
+                (recur round false todo (update-in players [exy :hp] - DAMAGE)))
 
               (if moved?
                 ;; avoid double moves in 1 turn
@@ -176,20 +164,18 @@
                                           (distinct)))
                                       (seq))]
                     ;; find next possible step:
-                    (do ;(prn [:open open-xys enemies player pxy])
-                      (if-let [next-xy (get-next-xy ROOM players pxy open-xys)]
-                        ;; move:
-                        (do ;(prn [:move pxy next-xy open-xys])
-                          (recur round true
-                            (conj todo next-xy)
-                            (-> players (dissoc pxy) (assoc next-xy player))))
-                        ;; do nothing:
-                        (recur round false todo players)))
+                    (if-let [next-xy (get-next-xy ROOM players pxy open-xys)]
+                      ;; move:
+                      (do ;(prn [:move pxy next-xy open-xys])
+                        (recur round true
+                          (conj todo next-xy)
+                          (-> players (dissoc pxy) (assoc next-xy player))))
+                      ;; do nothing:
+                      (recur round false todo players))
                     ;; do nothing:
                     (recur round false todo players))
                   ;; exit:
-                  (do ;(u/print-locals-map)
-                    (->> players (vals) (map :hp) (reduce + 0) (* round))))))))))))
+                  (->> players (vals) (map :hp) (reduce + 0) (* round)))))))))))
 
 
 
