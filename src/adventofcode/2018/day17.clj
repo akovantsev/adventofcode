@@ -38,18 +38,18 @@
 
 (defn render [water-xys]
   (let [;; extra room for overflows
-        xmin (- MINX 1)
-        xmax (+ MAXX 2)
-        width (- xmax xmin)
+        xmin   (- MINX 1)
+        xmax   (+ MAXX 2)
+        width  (- xmax xmin)
         points (for [x (range xmin xmax)
                      y (range 0 (inc MAXY))]
                  [x y])
-        draw  (fn draw [xy]
-                (cond
-                  (= [500 0] xy)           "+"
-                  (contains? CLAY-XYS xy)  "#"
-                  (contains? water-xys xy) "~"
-                  :else                    "."))]
+        draw   (fn draw [xy]
+                 (cond
+                   (= [500 0] xy)           "+"
+                   (contains? CLAY-XYS xy)  "#"
+                   (contains? water-xys xy) "~"
+                   :else                    "."))]
     (->> points
       (sort-by (juxt second first))
       (map draw)
@@ -59,14 +59,15 @@
       (spit "/tmp/water.txt"))))
 
 
-(defn side-expand [walls y xs head-el-fn inc-fn]
-  (let [x (head-el-fn xs)]
-    (if-not (-> y inc walls (contains? x))
-      [xs [x]] ;; down
-      (let [nx (inc-fn x)]
-        (if (-> y walls (contains? nx))
-          [xs nil] ;; stop
-          (recur walls y (conj xs nx) head-el-fn inc-fn)))))) ;; sideways
+(defn side-expand [walls y xs head move]
+  (let [x      (head xs)
+        nx     (move x)
+        floor? (-> y inc walls (contains? x))
+        wall?  (-> y     walls (contains? nx))]
+    (cond
+      (not floor?) [xs [x]] ;; down
+      wall?        [xs nil] ;; stop
+      :else        (recur walls y (conj xs nx) head move)))) ;; sideways
 
 (defn expand-left  [walls y xs] (side-expand walls y (seq xs) first dec))
 (defn expand-right [walls y xs] (side-expand walls y (vec xs) peek  inc))
