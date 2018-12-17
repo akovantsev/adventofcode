@@ -41,7 +41,7 @@
         xmin (- MINX 1)
         xmax (+ MAXX 2)
         width (- xmax xmin)
-        points (for [x (range (- MINX 1) (+ MAXX 2))
+        points (for [x (range xmin xmax)
                      y (range 0 (inc MAXY))]
                  [x y])
         draw  (fn draw [xy]
