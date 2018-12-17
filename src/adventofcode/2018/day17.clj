@@ -1,8 +1,6 @@
 (ns adventofcode.2018.day17
   (:require [clojure.string :as str]
-            [clojure.edn :as edn]
-            [adventofcode.utils :as u])
-  (:import [java.util Deque ArrayDeque]))
+            [clojure.edn :as edn]))
 
 (set! *print-length* 20)
 
@@ -25,35 +23,37 @@
 (def sconj (fnil conj #{}))
 (def sinto (fnil into #{}))
 
-(def CLAY (->> input str/split-lines (mapcat parse-line) (set)))
-(def CLAY2 (reduce
+(def CLAY-XYS (->> input str/split-lines (mapcat parse-line) (set)))
+(def CLAY  (reduce
              (fn rf [m [x y]]
                (update m y sconj x))
-             {} CLAY))
-CLAY2
+             {} CLAY-XYS))
 
-(count CLAY)
-(def MINX (->> CLAY (map first) (reduce min)))
-(def MAXX (->> CLAY (map first) (reduce max)))
-(def MINY (->> CLAY (map second) (reduce min)))
-(def MAXY (->> CLAY (map second) (reduce max)))
-[[MINX MINY] [MAXX MAXY]]
+
+(def MINX (->> CLAY-XYS (map first) (reduce min)))
+(def MAXX (->> CLAY-XYS (map first) (reduce max)))
+(def MINY (->> CLAY-XYS (map second) (reduce min)))
+(def MAXY (->> CLAY-XYS (map second) (reduce max)))
 
 
 (defn render [water-xys]
-  (let [points (for [x (range (- MINX 1) (+ MAXX 2)) ;; extra room for overflows
+  (let [;; extra room for overflows
+        xmin (- MINX 1)
+        xmax (+ MAXX 2)
+        width (- xmax xmin)
+        points (for [x (range (- MINX 1) (+ MAXX 2))
                      y (range 0 (inc MAXY))]
                  [x y])
-        draw  (fn [xy]
+        draw  (fn draw [xy]
                 (cond
                   (= [500 0] xy)           "+"
-                  (contains? CLAY xy)      "#"
+                  (contains? CLAY-XYS xy)  "#"
                   (contains? water-xys xy) "~"
                   :else                    "."))]
     (->> points
       (sort-by (juxt second first))
       (map draw)
-      (partition-all (+ 3 (- MAXX MINX)))
+      (partition-all width)
       (map str/join)
       (str/join "\n")
       (spit "/tmp/water.txt"))))
@@ -117,7 +117,7 @@ CLAY2
           tapy 0]
       (loop [y       tapy
              running {y #{[tapx]}} ; {y [xs]}
-             walls   CLAY2
+             walls   CLAY
              stale   {}] ;; {y xs}
         (if (< MAXY y)
           (let [banned (into #{y} (range tapy MINY))
