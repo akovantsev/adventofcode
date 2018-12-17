@@ -83,14 +83,12 @@
 
 
 (defn level-state [expanded]
-  ;(u/print-locals-map)
   (reduce
     (fn rf1 [m [puddle downstreams]]
-      (let [m (update m ::puddles conj puddle)]
-        (if (empty? downstreams)
-          (-> m (update ::overflows into puddle))
-          (-> m (update ::puddles conj puddle)
-                (update ::downstreams into downstreams)))))
+      (if (empty? downstreams)
+        (-> m (update ::overflows into puddle))
+        (-> m (update ::puddles conj puddle)
+              (update ::downstreams into downstreams))))
     {::overflows   #{}
      ::puddles     #{}
      ::downstreams #{}}
