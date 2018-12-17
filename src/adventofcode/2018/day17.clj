@@ -111,7 +111,7 @@ CLAY2
       $ stale)))
 
 
-(defn f1 []
+(defn simulation [include-running?]
   (time
     (let [tapx 500
           tapy 0]
@@ -121,6 +121,7 @@ CLAY2
              stale   {}] ;; {y xs}
         (if (< MAXY y)
           (let [banned (into #{y} (range tapy MINY))
+                running (if include-running? running {})
                 water  (water-xys
                          (apply dissoc running banned)
                          (apply dissoc stale banned))]
@@ -141,6 +142,10 @@ CLAY2
                 (update walls y sinto overflows)
                 (update stale y sinto overflows)))))))))
 
+
+(defn f1 [] (simulation true))
+(defn f2 [] (simulation false))
+
 (let [r1 (f1)]
   (assert (< r1 34780))
   (assert (< r1 34784))
@@ -148,3 +153,5 @@ CLAY2
   (assert (> r1 33358))
   (assert (> r1 33363))
   (assert (= r1 34775)))
+
+(assert (= (f2) 27086))
