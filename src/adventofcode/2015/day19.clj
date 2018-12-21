@@ -1,10 +1,8 @@
 (ns adventofcode.2015.day19
-  (:require [clojure.string :as str])
-  (:import [clojure.lang PersistentQueue]))
+  (:require [clojure.string :as str]))
 
 
 (def input "Al => ThF\nAl => ThRnFAr\nB => BCa\nB => TiB\nB => TiRnFAr\nCa => CaCa\nCa => PB\nCa => PRnFAr\nCa => SiRnFYFAr\nCa => SiRnMgAr\nCa => SiTh\nF => CaF\nF => PMg\nF => SiAl\nH => CRnAlAr\nH => CRnFYFYFAr\nH => CRnFYMgAr\nH => CRnMgYFAr\nH => HCa\nH => NRnFYFAr\nH => NRnMgAr\nH => NTh\nH => OB\nH => ORnFAr\nMg => BF\nMg => TiMg\nN => CRnFAr\nN => HSi\nO => CRnFYFAr\nO => CRnMgAr\nO => HP\nO => NRnFAr\nO => OTi\nP => CaP\nP => PTi\nP => SiRnFAr\nSi => CaSi\nTh => ThCa\nTi => BP\nTi => TiTi\ne => HF\ne => NAl\ne => OMg\n\nCRnSiRnCaPTiMgYCaPTiRnFArSiThFArCaSiThSiThPBCaCaSiRnSiRnTiTiMgArPBCaPMgYPTiRnFArFArCaSiRnBPMgArPRnCaPTiRnFArCaSiThCaCaFArPBCaCaPTiTiRnFArCaSiRnSiAlYSiThRnFArArCaSiRnBFArCaCaSiRnSiThCaCaCaFYCaPTiBCaSiThCaSiThPMgArSiRnCaPBFYCaCaFArCaCaCaCaSiThCaSiRnPRnFArPBSiThPRnFArSiRnMgArCaFYFArCaSiRnSiAlArTiTiTiTiTiTiTiRnPMgArPTiTiTiBSiRnSiAlArTiTiRnPMgArCaFYBPBPTiRnSiRnMgArSiThCaFArCaSiThFArPRnFArCaSiRnTiBSiThSiRnSiAlYCaFArPRnFArSiThCaFArCaCaSiThCaCaCaSiRnPRnCaFArFYPMgArCaPBCaPBSiRnFYPBCaFArCaSiAl")
-
 (def test-input "e => H\ne => O\nH => HO\nH => OH\nO => HH\n\nHOH")
 
 (defn parse-input [input]
@@ -43,66 +41,33 @@
 (assert (= 518 (f1 input)))
 
 
-(defn partition-by-elements [s] ;;fixme merge results to reflect available replacements
-  (reduce
-    (fn [els ch]
-      (if (Character/isUpperCase ^Character ch)
-        (conj els (str ch))
-        (conj (pop els) (str (peek els) ch))))
-    [] s))
+(defn get-all-replacements2 [s reps]
+  ;; greedy replace-first lol
+  (->> reps
+    (map (fn [[k v]]
+           (when (str/includes? s k)
+             (str/replace-first s k v))))
+    (remove nil?)
+    (sort-by count >)))
 
 
-#_
-(let [[molecule pairs] (parse-input input)
-      mc          (count molecule)
-      too-large?  #(-> % count (> mc))
-      empty-stack []];PersistentQueue/EMPTY]
-  (loop [banned   (transient #{})
-         stack    (conj empty-stack [0 "e"])
-         unlocked ""
-         locked   (partition-by-elements molecule)]
-    (let [[n s]      (peek stack)
-          new-banned (conj! banned s)]
-      (prn [unlocked (count banned) n s])
-      (cond
-        (empty? stack)
-        :did-not-find-solution
+(defn f2 [input]
+  (time
+    (let [[molecule pairs] (parse-input input)
+          reps             (->> pairs (map reverse) (map vec) (into {}))]
+      (loop [todo  [[0 molecule]]
+             ban   (transient #{})]
+        (let [[n s] (peek todo)
+              todo  (pop todo)]
+          (cond
+            (= s "e")             n
+            (contains? ban s)     (recur todo ban)
+            (str/index-of s "e")  (recur todo (conj! ban s))
+            :else                 (let [ss (map vector
+                                             (repeat (inc n))
+                                             (get-all-replacements2 s reps))]
+                                    (recur (into todo ss) (conj! ban s)))))))))
 
-        (= s molecule)
-        n
+(assert (= 200 (f2 input)))
+"Elapsed time: 9.255621 msecs" ;;lol
 
-        (not (str/starts-with? s unlocked))
-        (recur new-banned (pop stack) unlocked locked)
-
-        :else
-        (let [replace (fn mf [[a b]]
-                        (str/replace-first s (re-pattern a) b))
-              new-unlocked  (str unlocked (first locked))
-              gf (fn gf [s]
-                   (cond
-                     (too-large? s) :ba
-                     (banned s)     :ba
-                     (str/starts-with? s new-unlocked) :br
-                     (str/starts-with? s unlocked)     :to
-                     :else :ba))
-
-              {breakthrough :br
-               banned       :ba
-               todo         :to} (->> pairs
-                                   (get-all-replacements s)
-                                   (group-by gf))]
-          (if breakthrough
-            (recur
-              (reduce conj! new-banned (concat todo banned))
-              (->> breakthrough
-                (map vector (repeat (inc n)))
-                (into (pop stack)))
-              new-unlocked
-              (rest locked))
-            (recur
-              (reduce conj! new-banned banned)
-              (->> todo
-                (map vector (repeat (inc n)))
-                (into (pop stack)))
-              unlocked
-              locked)))))))
