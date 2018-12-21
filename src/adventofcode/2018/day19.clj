@@ -46,7 +46,7 @@
           complete? #(-> ops count (<= %))]
       (loop [!regs (transient regs)
              idx   (get !regs ip-reg)]
-        (prn [idx (!regs 0) (!regs 1) (!regs 2) (!regs 3) (!regs 4) (!regs 5)])
+        ;(prn [idx (!regs 0) (!regs 1) (!regs 2) (!regs 3) (!regs 4) (!regs 5)])
         (if (complete? idx)
           (persistent! !regs)
           (let [op    (get ops idx)
@@ -99,5 +99,5 @@
     (get ANHCOR-REG-IDX)
     (sum-of-factors)))
 
-(assert (= 1228 (f1)))
-(assert (= 15285504 (f2)))
+;(assert (= 1228 (f1)))
+;(assert (= 15285504 (f2)))
