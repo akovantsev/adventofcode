@@ -84,7 +84,8 @@
 
 
 (defn f2 []
-  ;; thanks @drowsy for `sets` approach
+  ;; thanks @drowsy for `sets` approach (wasted half a day on iterative A*, Dijkstra, etc.):
+  ;; https://github.com/IamDrowsy/advent-of-cljc/blob/master/src/aoc/y2018/d22/iamdrowsy.cljc
   ;; thanks @gklijs for "can't switch to torch while in water" detail.
   (time
     (loop [cost 0
