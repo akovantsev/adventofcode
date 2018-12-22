@@ -1,4 +1,5 @@
-(ns adventofcode.2018.day22)
+(ns adventofcode.2018.day22
+  (:require [clojure.set :as set]))
 
 
 (def DEPTH 11541)
@@ -31,8 +32,8 @@
 
 (def CAVE
   (->>
-    (for [x (range (-> XMAX inc (+ 50)))
-          y (range (-> YMAX inc (+ 50)))]
+    (for [x (range (-> XMAX inc (+ 150)))
+          y (range (-> YMAX inc (+ 150)))]
       [x y])
     (reduce set-stats! (transient {}))
     (persistent!)))
@@ -47,11 +48,76 @@
     (reduce + 0)))
 
 
-(assert (= 11575 (f1 CAVE)))
-
 
 (def EQUIP-REQUIRED
   {:geotype/rocky  #{\G \T}
    :geotype/wet    #{\G \N}
    :geotype/narrow #{\T \N}})
 
+(def ALL-XYZ
+  (->> CAVE
+    (reduce-kv
+      (fn rf [!s [x y] {::keys [type]}]
+        (->> type
+          EQUIP-REQUIRED
+          (map (partial conj [x y]))
+          (reduce conj! !s)))
+      (transient #{}))
+    (persistent!)))
+
+
+(defn next-xyzs [[x y z]]
+  [,,,,,,,,,,,,, [x (dec y) z] ,,,,,,,,,,,
+   [(dec x) y z] ,,,,,,,,,,,,, [(inc x) y z]
+   ,,,,,,,,,,,,, [x (inc y) z] ,,,,,,,,,,,])
+
+
+(defn switch [[x y z]]
+  (->> z
+    (disj #{\T \N \G})
+    (map (fn [z] [x y z]))))
+
+(def TARGET-XYZ [XMAX YMAX \T])
+(def START-XYZ [0 0 \T])
+
+(def intos (fnil into #{}))
+
+
+(defn f2 []
+  ;; thanks @drowsy for `sets` approach
+  ;; thanks @gklijs for "can't switch to torch while in water" detail.
+  (time
+    (loop [cost 0
+           left ALL-XYZ
+           done {0 #{START-XYZ}}]
+      (if (-> cost done (contains? TARGET-XYZ))
+        cost
+        (let [xyzs       (get done cost)
+              cheap-xyzs (->> xyzs
+                           (mapcat next-xyzs)
+                           (filter left))
+              expen-xyzs (->> xyzs
+                           (mapcat switch)
+                           (filter ALL-XYZ)  ;; <-- @gklijs
+                           (mapcat next-xyzs)
+                           (filter left))
+              done'      (-> done
+                           (update (+ 1 cost) intos cheap-xyzs)
+                           (update (+ 8 cost) intos expen-xyzs))
+              left'      (set/difference
+                           (set left)
+                           (set xyzs)
+                           (set cheap-xyzs))]
+          (recur (inc cost) left' done'))))))
+
+
+
+(assert (= 11575 (f1 CAVE)))
+
+(let [r2 (f2)]
+  (assert (< r2 2262))
+  (assert (not= r2 1092))
+  (assert (not= r2 1093))
+  (assert (not= r2 1064))
+  (assert (not= r2 1065))
+  (assert (= r2 1068)))
