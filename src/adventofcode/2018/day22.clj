@@ -10,27 +10,31 @@
 (defn erosion [geo] (-> geo (+ DEPTH) (mod 20183)))
 (defn risk    [ero] (-> ero (mod 3)))
 
+(def GEOTYPE [:geotype/rocky :geotype/wet :geotype/narrow]) ;;from risk
+
 (defn geoidx [cave [x y :as xy]]
   (cond
     (zero? x)    (* y 48271)
     (zero? y)    (* x 16807)
     (target? xy) 0
-    :else        (let [[g1 e1] (get cave [(dec x) y])
-                       [g2 e2] (get cave [x (dec y)])]
-                   (* e1 e2))))
+    :else        (* (-> [(dec x) y] cave ::ero)
+                    (-> [x (dec y)] cave ::ero))))
 
+(defn set-stats! [!cave xy]
+  (let [g (geoidx !cave xy)
+        e (erosion g)
+        r (risk e)]
+    (assoc! !cave xy {::geo  g
+                      ::ero  e
+                      ::risk r
+                      ::type (GEOTYPE r)})))
 
 (def CAVE
   (->>
-    (for [x (range (XMAX inc))
-          y (range (inc YMAX))]
+    (for [x (range (-> XMAX inc (+ 50)))
+          y (range (-> YMAX inc (+ 50)))]
       [x y])
-    (reduce
-      (fn rf1 [m xy]
-        (let [g (geoidx m xy)
-              e (erosion g)]
-          (assoc! m xy [g e])))
-      (transient {}))
+    (reduce set-stats! (transient {}))
     (persistent!)))
 
 
@@ -39,12 +43,15 @@
     (remove #(-> % key first  (> XMAX)))
     (remove #(-> % key second (> YMAX)))
     (map val)
-    (map second)
-    (map risk)
+    (map ::risk)
     (reduce + 0)))
 
 
 (assert (= 11575 (f1 CAVE)))
 
 
-()
+(def EQUIP-REQUIRED
+  {:geotype/rocky  #{\G \T}
+   :geotype/wet    #{\G \N}
+   :geotype/narrow #{\T \N}})
+
