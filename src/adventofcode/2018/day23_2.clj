@@ -43,8 +43,8 @@
 
 (defn distance [[x0 y0 z0] [x1 y1 z1]]
   (+ (Math/abs ^long (- x0 x1))
-    (Math/abs ^long (- y0 y1))
-    (Math/abs ^long (- z0 z1))))
+     (Math/abs ^long (- y0 y1))
+     (Math/abs ^long (- z0 z1))))
 
 (defn initial-search-cube [inputs]
   (let [ranges     (coord-range inputs)
