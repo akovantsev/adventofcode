@@ -51,6 +51,7 @@
         max-length (->> ranges
                      (map (fn [[m n]] (- n m)))
                      (reduce max))
+        ;; this is to avoid dealing with rounding errors when halfing the size:
         size       (power-of-two max-length)
         start      (mapv first ranges)]
     {:size     size
