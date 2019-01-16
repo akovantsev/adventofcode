@@ -54,7 +54,7 @@
 (defn f2 [input]
   (time
     (let [[molecule pairs] (parse-input input)
-          reps             (->> pairs (map reverse) (map vec) (into {}))]
+          reps             (->> pairs (map reverse) (map vec) (sort-by #(-> % first count) >))]
       (loop [todo  [[0 molecule]]
              ban   (transient #{})]
         (let [[n s] (peek todo)
