@@ -24,17 +24,17 @@
    \U (fn U [[x y]] [x (inc y)])
    \D (fn D [[x y]] [x (dec y)])})
 
+(defn get-step-coords [xys [d n]]
+  (->> (peek xys)
+    (iterate (step d))
+    (rest) ;; exclude start point
+    (take n)
+    (into xys)))
 
 (defn get-coords [steps]
-  (loop [[[d n] & todo] steps
-         xys  [[0 0]]]
-    (if (nil? d)
-      (subvec xys 1) ;;exclude [0 0]
-      (recur todo (->> (peek xys)
-                    (iterate (step d))
-                    (rest) ;; exclude start point
-                    (take n)
-                    (into xys))))))
+  (->> steps
+    (reduce get-step-coords [[0 0]])
+    (rest)));;exclude [0 0]))
 
 (def distance (partial u/city-distance [0 0]))
 
