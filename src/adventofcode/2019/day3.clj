@@ -32,14 +32,14 @@
     (into xys)))
 
 (defn get-coords [steps]
-  (->> steps
-    (reduce get-step-coords [[0 0]])
-    (rest)));;exclude [0 0]))
+  (reduce get-step-coords [[0 0]] steps))
 
 (def distance (partial u/city-distance [0 0]))
 
 (defn intersections [xys1 xys2]
-  (set/intersection (set xys1) (set xys2)))
+  (disj
+    (set/intersection (set xys1) (set xys2))
+    [0 0]))
 
 (defn closest [input]
   (->> input parse
@@ -54,7 +54,7 @@
 (assert (= 3229 (closest input)))
 
 (defn steps-count [xy xys]
-  (->> xys (take-while #(not= xy %)) count inc)) ;; include intersection itself
+  (->> xys (take-while #(not= xy %)) count))
 
 (defn total-steps-count [xyss xy]
   (->> xyss
