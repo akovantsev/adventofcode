@@ -4,6 +4,9 @@
 
 (def letters "abcdefghijklmnopqrstuvwxyz")
 
+(defn to-int [^String s]
+  (Integer/parseInt s 10))
+
 (defmacro locals-map
   ;; https://gist.github.com/noisesmith/3490f2d3ed98e294e033b002bc2de178
   []
