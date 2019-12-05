@@ -9,7 +9,7 @@ d2/parse
 
 (defn getv [state mode x]
   (case mode
-    0 (try (get state x) (catch Exception e (prn x state)))
+    0 (get state x)
     1 x))
 
 (defn exit? [n] (= 99 n))
