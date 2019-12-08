@@ -22,29 +22,46 @@ d2/parse
 (assert (= [0 0 1 0 3] (ins-vec 103)))
 
 
-(defn f [input init]
-  (loop [idx    0
-         output []
-         state  (d2/parse init)]
+(defn next-input [input]
+  ;; this is bullshit. reuse last input if all consumed
+  (or (next input) input))
+
+(defn step [{::keys [id input state idx]}]
+  (loop [input  input
+         idx    idx
+         state  state]
     (let [ins (state idx)]
       (if (exit? ins)
-        (do
-          (assert (every? zero? (pop output)))
-          (peek output))
+        ::halt
         (let [[mc mb ma _ op] (ins-vec ins)
               idx* (-> op WIDTH (+ idx))
               [_ a b c] (subvec state idx idx*)
               A    (getv state ma a)
               B    (getv state mb b)]
           (case op
-            1 (recur idx* output (assoc state c (+ A B)))
-            2 (recur idx* output (assoc state c (* A B)))
-            3 (recur idx* output (assoc state a input))
-            4 (recur idx* (conj output A) state)
-            5 (recur (if (zero? A) idx* B) output state)
-            6 (recur (if (zero? A) B idx*) output state)
-            7 (recur idx* output (assoc state c (if (< A B) 1 0)))
-            8 (recur idx* output (assoc state c (if (= A B) 1 0)))))))))
+            1 (recur input idx* (assoc state c (+ A B)))
+            2 (recur input idx* (assoc state c (* A B)))
+            3 (recur (next-input input) idx* (assoc state a (first input)))
+            4 (if (zero? A)
+                (recur input idx* state)
+                {::id     id
+                 ::idx    idx*
+                 ::state  state
+                 ::input  input
+                 ::output A})
+            5 (recur input (if (zero? A) idx* B) state)
+            6 (recur input (if (zero? A) B idx*) state)
+            7 (recur input idx* (assoc state c (if (< A B) 1 0)))
+            8 (recur input idx* (assoc state c (if (= A B) 1 0)))))))))
 
-(assert (= 13087969 (f 2 input)))
-(assert (= 14110739 (f 5 input)))
+
+(defn output-before-halt [input init]
+  (->> {::state init ::idx 0 ::input input}
+    (iterate step)
+    (take-while #(not= ::halt %))
+    last
+    ::output))
+
+
+(assert (= 13087969 (output-before-halt [2] (d2/parse input))))
+(assert (= 14110739 (output-before-halt [5] (d2/parse input))))
