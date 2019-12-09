@@ -1,11 +1,12 @@
 (ns adventofcode.utils
   (:import [java.security MessageDigest]))
 
+(set! *print-length* 2000)
 
 (def letters "abcdefghijklmnopqrstuvwxyz")
 
 (defn to-int [^String s]
-  (Integer/parseInt s 10))
+  (Long/parseLong s 10))
 
 (defmacro locals-map
   ;; https://gist.github.com/noisesmith/3490f2d3ed98e294e033b002bc2de178
