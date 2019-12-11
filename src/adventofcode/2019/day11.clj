@@ -42,7 +42,8 @@
               (recur robot xy dir canvas))))))))
 
 (defn f1 [input] (count (f input black)))
-(= 1894 (f1 input))
+
+(assert (= 1894 (f1 input)))
 
 (defn f2 [input]
   (let [canvas (f input white)
