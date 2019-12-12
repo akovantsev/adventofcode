@@ -135,5 +135,5 @@
 (assert (= (time (f2 input)) 467034091553512))
 
 ;; positions and velocities per axis are independent,
-;; so everything above can be refactored to run 3 separate for each part
-;; instead of running once fatter step.
+;; so everything above can be refactored to run 3 separate steps per axis
+;; for each part instead of running one step for all axes.
