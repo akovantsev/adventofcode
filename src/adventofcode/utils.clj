@@ -1,4 +1,5 @@
 (ns adventofcode.utils
+  (:require [clojure.string :as str])
   (:import [java.security MessageDigest]))
 
 (set! *print-length* 2000)
@@ -39,3 +40,16 @@
    [^int x2 ^int y2]]
   (+ (Math/abs (- x2 x1))
     (Math/abs (- y1 y2))))
+
+
+(defn draw [brushes canvas]
+  (let [w      (->> canvas keys (map first) (reduce max) inc)
+        h      (->> canvas keys (map second) (reduce max) inc)
+        blank  (->> (repeat w 0) (vec) (repeat h) (vec))]
+    (->> canvas
+      (reduce-kv
+        (fn [v [x y] c]
+          (assoc-in v [y x] (brushes c)))
+        blank)
+      (map str/join)
+      (str/join "\n"))))
