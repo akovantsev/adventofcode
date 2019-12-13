@@ -29,8 +29,10 @@
 
 (time (assert (= 228 (f1 input))))
 
+(defn draw [screen]
+  (u/draw [" " "|" "#" "–" "o"] screen))
 
-(->> input initial-screen (u/draw [" " "|" "#" "-" "o"]))
+(->> input initial-screen draw)
 
 
 
@@ -40,7 +42,7 @@
 (def paddle? #{3})
 (def ball? #{4})
 
-(defn f2 [input]
+(defn f2 [input & [visualize?]]
   (loop [frame  (-> input make play-for-free)
          screen {}
          paddle -1
@@ -58,6 +60,7 @@
               ball   (if (ball? z) x ball)
               in     (compare ball paddle)
               frame  (assoc frame ::cpu/input [in])]
+          (when visualize? (println (draw (dissoc screen [-1 0]))))
           (recur frame screen paddle ball))))))
 
 (time (assert (= 10776 (f2 input))))
