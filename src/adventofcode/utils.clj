@@ -6,6 +6,8 @@
 
 (def letters "abcdefghijklmnopqrstuvwxyz")
 
+(defn spy [x] (prn x) x)
+
 (defn to-int [^String s]
   (Long/parseLong s 10))
 
@@ -42,14 +44,19 @@
     (Math/abs (- y1 y2))))
 
 
-(defn draw [brushes canvas]
-  (let [w      (->> canvas keys (map first) (reduce max) inc)
-        h      (->> canvas keys (map second) (reduce max) inc)
-        blank  (->> (repeat w 0) (vec) (repeat h) (vec))]
+(defn draw [brushes canvas & [default]]
+  (let [xs      (->> canvas keys (map first))
+        ys      (->> canvas keys (map second))
+        woffset (- (reduce min 0 xs))
+        hoffset (- (reduce min 0 ys))
+        w       (->> xs (reduce max) inc (+ woffset))
+        h       (->> ys (reduce max) inc (+ hoffset))
+        default (or default "0")
+        blank   (->> (repeat w default) (vec) (repeat h) (vec))]
     (->> canvas
       (reduce-kv
         (fn [v [x y] c]
-          (assoc-in v [y x] (brushes c)))
+          (assoc-in v [(+ y hoffset) (+ x woffset)] (brushes c)))
         blank)
       (map str/join)
       (str/join "\n"))))
