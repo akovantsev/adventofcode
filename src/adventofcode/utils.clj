@@ -62,3 +62,13 @@
         blank)
       (map str/join)
       (str/join "\n"))))
+
+(def turn-left  {:up :left :left :down :down :right :right :up})
+(def turn-right {:up :right :right :down :down :left :left :up})
+
+(defn next-xy [dir [x y]]
+  (case dir
+    :up    [x (dec y)]
+    :down  [x (inc y)]
+    :left  [(dec x) y]
+    :right [(inc x) y]))
