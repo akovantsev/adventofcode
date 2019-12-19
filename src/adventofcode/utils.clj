@@ -49,8 +49,8 @@
 (defn draw [brushes canvas & [default]]
   (let [xs      (->> canvas keys (map first))
         ys      (->> canvas keys (map second))
-        woffset (- (reduce min 0 xs))
-        hoffset (- (reduce min 0 ys))
+        woffset (- (reduce min xs))
+        hoffset (- (reduce min ys))
         w       (->> xs (reduce max) inc (+ woffset))
         h       (->> ys (reduce max) inc (+ hoffset))
         default (or default "0")
