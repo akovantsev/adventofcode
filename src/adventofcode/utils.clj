@@ -1,6 +1,7 @@
 (ns adventofcode.utils
   (:require [clojure.string :as str])
-  (:import [java.security MessageDigest]))
+  (:import [java.security MessageDigest]
+           [clojure.lang PersistentQueue]))
 
 (set! *print-length* 2000)
 
@@ -72,3 +73,47 @@
     :down  [x (inc y)]
     :left  [(dec x) y]
     :right [(inc x) y]))
+
+(defn neighbours [[x y]]
+  [[x (dec y)]
+   [x (inc y)]
+   [(dec x) y]
+   [(inc x) y]])
+
+
+(defn shortest-distance [floor next-tiles start finish] ;;fixme move neighbours to args
+  (loop [shortest Integer/MAX_VALUE
+         seen     #{start}
+         todo     (-> (PersistentQueue/EMPTY) (conj [0 start]))]
+    (if (empty? todo)
+      (when-not (= shortest Integer/MAX_VALUE)
+        shortest)
+      (let [[len xy] (peek todo)
+            todo (pop todo)]
+        (cond
+          (< shortest len) (recur shortest seen todo)
+          (= xy finish)    (recur (min shortest len) seen todo)
+          :else            (let [xys    (->> xy next-tiles (filter floor) (remove seen))
+                                 seen   (into seen xys)
+                                 clones (map vector (repeat (inc len)) xys)]
+                             (recur shortest seen (into todo clones))))))))
+
+
+(defn shortest-path [floor next-tiles start finish]
+  (loop [shortest Integer/MAX_VALUE
+         path     nil ;;excluding finish
+         seen     #{start}
+         todo     (-> (PersistentQueue/EMPTY) (conj [start]))]
+    (if (empty? todo)
+      path
+      (let [p    (peek todo)
+            todo (pop todo)
+            xy   (peek p)
+            len  (count p)]
+        (if (= xy finish)
+          (if (< len shortest)
+            (recur len p seen todo)
+            (recur shortest path seen todo))
+          (let [xys  (->> xy next-tiles (filter floor) (remove seen))
+                seen (into seen xys)]
+            (recur shortest path seen (->> xys (map #(conj p %)) (into todo)))))))))
