@@ -176,17 +176,6 @@
             (when (db rxy)
               [\R rd rxy])))))))
 
-(let [db     (make-db input)
-      [x y d] (:bot db)
-      xy [x y]
-      [t d xy] (next-tdxy db d xy)]
-      ;[t d xy] (next-tdxy db d xy)]
-     [xy d])
-  ;(next-tdxy db d xy))
-
-
-
-
 
 ;; dont turn on intersections
 (defn shortest-path [db]

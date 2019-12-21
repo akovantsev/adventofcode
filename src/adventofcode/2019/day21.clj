@@ -195,7 +195,10 @@
 '(or a b c)
 "OR a t, OR b t, OR c t"
 
-(defn OR [forms] (mapcat OP forms))
+(defn OR [forms]
+  (mapcat concat
+    (map OP forms)
+    (repeat ["OR T J"])))
 
 (OR '(a b c))
 (OR '((not a) (not b) (not c)))
@@ -205,11 +208,14 @@
     (map OP forms)
     (repeat ["AND T J"])))
 
+(def TRUE-T "NOT A T\nOR  A T")
+(def TRUE-J "NOT A J\nOR  A J")
+
 (defn OP* [form]
   (println
     (str/join "\n"
       (cons
-        "NOT J J"
+        TRUE-J
         (OP form)))))
 
 
@@ -232,9 +238,11 @@
 
 (OP 'a)
 
-(and P1
-  (or h ;;can land again
-    (not e))) ;;can walk
+'(and
+   d
+   (or (not a) (not b) (not c))
+   (or h ;;can land again
+     (not e))) ;;can walk
 
 (def p1
   "NOT A J
