@@ -81,7 +81,7 @@
    [(inc x) y]])
 
 
-(defn shortest-distance [floor next-tiles start finish] ;;fixme move neighbours to args
+(defn shortest-distance [floor next-tiles start finish]
   (loop [shortest Integer/MAX_VALUE
          seen     #{start}
          todo     (-> (PersistentQueue/EMPTY) (conj [0 start]))]
