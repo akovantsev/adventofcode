@@ -26,6 +26,22 @@
       (map trees)
       (reduce * 1))))
 
+(defn trees [lines [dx dy]]
+  (let [width (->> lines first count)
+        plus  (fn [x] (mod (+ x dx) width))]
+    (->> (map get
+           (take-nth dy lines)
+           (iterate plus 0))
+      (keep #{\#})
+      (count))))
+
+(defn solve [input slopes]
+  (let [forest (str/split-lines input)]
+    (->> slopes
+      (map #(trees forest %))
+      (reduce * 1))))
+
+
 
 (def slopes1 [[3 1]])
 (def slopes2 [[1 1] [3 1] [5 1] [7 1] [1 2]])
