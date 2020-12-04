@@ -22,10 +22,8 @@
   (filter #(<= 2020 (read-string (% "eyr")) 2030))
   (filter #(let [hgt (% "hgt")]
              (cond
-               (str/ends-with? hgt "cm")
-               (<= 150 (read-string (str/replace hgt "cm" "")) 193)
-               (str/ends-with? hgt "in")
-               (<= 59 (read-string (str/replace hgt "in" "")) 76))))
+               (str/ends-with? hgt "cm") (<= 150 (read-string (str/replace hgt "cm" "")) 193)
+               (str/ends-with? hgt "in") (<= 59 (read-string (str/replace hgt "in" "")) 76))))
   (filter #(re-matches #"#[0-9a-f]{6}" (% "hcl")))
   (filter #(contains? #{"amb" "blu" "brn" "gry" "grn" "hzl" "oth"} (% "ecl")))
   (filter #(re-matches #"\d{9}" (% "pid")))
