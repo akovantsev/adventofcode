@@ -7,7 +7,7 @@
 
 
 (defn solve [input slopes]
-  (let [forest    (->> input str/split-lines (mapv vec))
+  (let [forest    (str/split-lines input)
         width     (->> forest first count)
         height    (->> forest count)
         tree?     #{\#}
@@ -51,3 +51,10 @@
 
 (assert (= (solve input slopes1) 191))
 (time (assert (= (solve input slopes2) 1478615040)))
+
+
+(def xs [0 5 10])
+(def coll [:a :b :c :d])
+
+(map #(nth (cycle coll) %) xs)
+(map #(nth coll (mod % (count coll))) xs)
