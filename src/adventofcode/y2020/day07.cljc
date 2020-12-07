@@ -56,3 +56,14 @@
         (recur
           (+ total n)
           (into todo (map (fn [[xx nn]] [xx (* n nn)]) (M x))))))))
+
+;p2 2
+(defn step [DB n content]
+  (->> content
+    (map (fn [[bag amount]] (step DB amount (DB bag))))
+    (reduce +)
+    (* n)
+    (+ n)))
+
+(let [DB (forv-map i)]
+  (dec (step DB 1 (DB "shiny gold bag"))))
