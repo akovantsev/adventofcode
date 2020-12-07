@@ -15,12 +15,10 @@
       {from {}}
       tos)))
 
-(defn forv-map [i]
-  (->> i str/split-lines
-    (map parse-one)
-    (reduce merge)))
+(defn forward-db [i]
+  (->> i (str/split-lines) (map parse-one) (reduce merge)))
 
-(defn rev-map [m]
+(defn backward-db [m]
   (reduce-kv
     (fn [m k v]
       (reduce
@@ -30,24 +28,22 @@
     {} m))
 
 
-(parse-one "dotted black bags contain no other bags.")
 
-
-(defn search [s rev-map]
+(defn search [s backward-db]
   (loop [done #{}
          todo [s]]
     (if (empty? todo)
       done
       (let [x (first todo)
             todo (rest todo)
-            items (rev-map x)]
+            items (backward-db x)]
         (recur (into done items) (into todo items))))))
 
 ;;p1
-(count (search "shiny gold bag" (rev-map (forv-map i))))
+(count (search "shiny gold bag" (backward-db (forward-db i))))
 
 ;p2
-(let [M (forv-map t2)]
+(let [M (forward-db t2)]
   (loop [total 0
          todo [["shiny gold bag" 1]]]
     (if (empty? todo)
@@ -65,5 +61,5 @@
     (* n)
     (+ n)))
 
-(let [DB (forv-map i)]
+(let [DB (forward-db i)]
   (dec (step DB 1 (DB "shiny gold bag"))))
