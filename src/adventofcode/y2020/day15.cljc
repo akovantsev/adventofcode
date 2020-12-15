@@ -6,16 +6,16 @@
 
 (defn f [input n]
   (loop [turn  (count input)
-         hist  (zipmap input (range 1 ##Inf))
+         !hist (transient (zipmap input (range 1 ##Inf)))
          prev  (peek input)]
     (if (= n turn)
       prev
-      (recur
-        (inc turn)
-        (assoc hist prev turn)
-        (if-let [last (get hist prev)]
-          (- turn last)
-          0)))))
+      (let [prev* (if-let [last (get !hist prev)]
+                    (- turn last)
+                    0)
+            !hist (assoc! !hist prev turn)]
+        (recur (inc turn) !hist prev*)))))
+
 
 (assert (= 436 (f t 2020)))
 (assert (= 387 (f i 2020)))
