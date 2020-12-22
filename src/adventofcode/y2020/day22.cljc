@@ -51,14 +51,18 @@
 (declare game2)
 
 (defn step2 [[s1 s2]]
-  (let [[p1 seen1] s1  v1 (into [] p1)
-        [p2 seen2] s2  v2 (into [] p2)]
+  (let [[p1 seen1] s1
+        [p2 seen2] s2]
     (cond
-      (empty? p1)                {:player 2 :score (score p2)}
-      (empty? p2)                {:player 1 :score (score p1)}
-      (or (seen1 v1) (seen2 v2)) {:player 1 :score (score p1)}
+      (empty? p1)   {:player 2 :score (score p2)}
+      (empty? p2)   {:player 1 :score (score p1)}
+      (or
+        (seen1 p1)
+        (seen2 p2)) {:player 1 :score (score p1)}
       :else
-      (let [x1 (peek p1)  p1 (pop p1)
+      (let [seen1 (conj seen1 p1)
+            seen2 (conj seen2 p2)
+            x1 (peek p1)  p1 (pop p1)
             x2 (peek p2)  p2 (pop p2)
             [p1 p2] (if (and
                           (<= x1 (count p1))
@@ -75,8 +79,8 @@
                         (< x1 x2) [p1 (conj p2 x2 x1)]
                         (> x1 x2) [(conj p1 x1 x2) p2]
                         (= x1 x2) [(conj p1 x1) (conj p2 x2)]))]
-        [[p1 (conj seen1 v1)]
-         [p2 (conj seen2 v2)]]))))
+        [[p1 seen1]
+         [p2 seen2]]))))
 
 (defn game2 [states]
   (->> states
@@ -91,4 +95,5 @@
   (game2)
   (time))
 
+"Elapsed time: 634.934112 msecs"
 {:player 1, :score 36463}
