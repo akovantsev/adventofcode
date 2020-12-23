@@ -13,8 +13,8 @@
 (defn destination [curr MAX abc]
   (let [banned (set abc)]
     (or
-      (->> curr dec (iterate dec) (drop-while banned) (take-while pos?) (first))
-      (->> MAX  (iterate dec) (drop-while banned) (first)))))
+      (->> ^int curr dec (iterate dec) (drop-while banned) (take-while pos?) (first))
+      (->> ^int MAX  (iterate dec) (drop-while banned) (first)))))
 
 
 (destination 1 9 [7 8 9])
@@ -108,25 +108,42 @@
 
 ;p2
 
-(let [numbers (->> i (map str) (mapv read-string))
-      moves   1000;0000
-      MAX     1000000
-      A       (int-array (range 1 (inc (inc MAX))))]
-  ;; init:
-  ;; set current into 0th
-  (aset A 0 (first numbers))
-  (doseq [[x y] (partition 2 1 numbers)]
-    (aset A x y))
-  ;; last given number to first generated number:
-  (aset A (peek numbers) (inc (reduce max numbers)))
-  ;; last ever number to first given number:
-  (aset A MAX (first numbers))
-  ;(map-indexed vector (into [] A))))
-  (time (play! MAX moves A))
-  (*
-    (->> 1 (get A))
-    (->> 1 (get A) (get A))))
+(time
+  (let [numbers (->> i (map str) (mapv read-string))
+        moves   10000000
+        MAX     1000000
+        A       (int-array (range 1 (inc (inc MAX))))]
+    ;; init:
+    ;; set current into 0th
+    (aset A 0 ^int (first numbers))
+    (doseq [[x y] (partition 2 1 numbers)]
+      (aset A x ^int y))
+    ;; last given number to first generated number:
+    (aset A (peek numbers) ^int (inc (reduce max numbers)))
+    ;; last ever number to first given number:
+    (aset A MAX ^int (first numbers))
+    ;(map-indexed vector (into [] A))))
+    (dotimes [n moves]
+      (let [cur       (aget A 0)
+            a         (aget A cur)
+            b         (aget A a)
+            c         (aget A b)
+            after-c   (aget A c)
+            des       (destination cur MAX [a b c])
+            after-des (aget A des)]
+        ;;remove abc:
+        (aset A cur after-c)
+        ;; insert abc after dest
+        (aset A des a)
+        (aset A c after-des)
+        ;; set new current as el 0:
+        (aset A 0 after-c)))
+    (*
+      (->> 1 (get A))
+      (->> 1 (get A) (get A)))))
 
+"Elapsed time: 6754.597334 msecs"
+42271866720
 
 (set! *unchecked-math* true)
 
