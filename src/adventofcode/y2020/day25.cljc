@@ -1,4 +1,4 @@
-(ns adventofcode.2019.day25)
+(ns adventofcode.y2020.day25)
 
 (def t [5764801 17807724])
 (def i [17115212 3667832])
