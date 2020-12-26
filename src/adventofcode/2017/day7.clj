@@ -35,28 +35,25 @@
 
 (get-weight db "svugo")
 
-(defn get-outlier [db ids]
-  (let [m (->> ids
-            (group-by (partial get-weight db))
-            (sort-by #(-> % second count) >))
-        [[expected] [actual [id]]] m]
-    {::id id ::actual actual ::expected expected}))
+;p2:
+(let [db      (parse input)
+      root-id (get-root db)
+      get-weight (partial get-weight db)]
+  (loop [req ##Inf
+         id  root-id]
+    (let [node    (db id)
+          ids     (::top node)
+          weights (map get-weight ids)
+          outlier (-> weights frequencies set/map-invert (get 1))]
+      (if-not outlier
+        (reduce - req weights)
+        (let [req (-> weights set (disj outlier) first)
+              idx (->> weights
+                    (map-indexed vector)
+                    (filter #(-> % second (= outlier)))
+                    (first)
+                    (first))
+              id  (nth ids idx)]
+          (recur req id))))))
 
-
-(defn reballance
-  ([db]
-   (let [root (get-root db)
-         ids  (get-in db [root ::top])]
-     (reballance db ids)))
-  ([db ids]
-   (let [{::keys [expected actual id] :as parent} (get-outlier db ids)
-
-         ids  (get-in db [id ::top])]
-     (if ids
-       (reballance db ids parent)
-       expected)))
-  ([db ids parent-outlier]
-   ()))
-
-
-(reballance db)
+;1152
