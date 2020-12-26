@@ -66,6 +66,7 @@
 
 (def turn-left  {:up :left :left :down :down :right :right :up})
 (def turn-right {:up :right :right :down :down :left :left :up})
+(def turn-back  {:up :down :down :up :left :right :right :left})
 
 (defn next-xy [dir [x y]]
   (case dir
