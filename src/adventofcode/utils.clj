@@ -81,6 +81,13 @@
    [(dec x) y]
    [(inc x) y]])
 
+(defn neighbours8 [[x y]]
+  (let [dx (dec x) ix (inc x)
+        dy (dec y) iy (inc y)]
+    [[dx dy] [x dy] [ix dy]
+     [dx  y] ,,,,,, [ix  y]
+     [dx iy] [x iy] [ix iy]]))
+
 
 (defn shortest-distance [floor next-tiles start finish]
   (loop [shortest Integer/MAX_VALUE
