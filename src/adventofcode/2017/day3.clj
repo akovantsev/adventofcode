@@ -38,5 +38,21 @@
   (assert (> 737 r))
   (assert (= 475 r)))
 
-(reduce
-  (fn rf [m]))
+(defn f2 [stop]
+  (loop [grid {[0 0] 1}
+         at    [0 0]
+         dir  :right]
+    (let [xy (u/next-xy dir at)
+          v  (->> xy (u/neighbours8) (map grid) (remove nil?) (reduce +))]
+      (prn v)
+      (if (< stop v)
+        v
+        (let [grid (assoc grid xy v)
+              dir  (if (-> dir u/turn-left (u/next-xy xy) grid)
+                     dir
+                     (u/turn-left dir))]
+          (recur grid xy dir))))))
+#_
+(f2 input)
+
+(f2 806)
