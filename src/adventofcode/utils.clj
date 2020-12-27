@@ -8,6 +8,8 @@
 (def letters "abcdefghijklmnopqrstuvwxyz")
 
 (defn spy [x] (prn x) x)
+(defn spyf>  [x f] (prn (f x)) x)
+(defn spyf>> [f x] (prn (f x)) x)
 
 (defn to-int [^String s]
   (Long/parseLong s 10))
