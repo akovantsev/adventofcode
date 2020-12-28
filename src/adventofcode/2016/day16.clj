@@ -6,25 +6,27 @@
 
 (def input "01000100010010111")
 (def DISC 272)
-(set! *print-length* DISC)
-
-(defn check-digit [[x y]]
-  (if (= x y) \1 \0))
-
-(def mem-check-dig (memoize check-digit))
+(set! *print-length* 30)
 
 
 (defn check-digits [chs]
   (->> chs
-    (partition 2 2)
-    (map mem-check-dig)))
+    (partition 2)
+    (map {[\1 \1] \1 [\0 \0] \1
+          [\1 \0] \0 [\0 \1] \0})))
 
-(defn checksum [digits]
-  (->> digits
-    (iterate check-digits)
-    (drop-while #(-> % count even?))
-    (first)
-    (str/join)))
+;(def mem-check-digs (memoize check-digit))
+
+(defn checksum [len digits]
+  (let [n (->> len
+            (iterate #(/ % 2))
+            (take-while even?)
+            (count))]
+    (->> digits
+      (iterate check-digits)
+      (drop n)
+      (first)
+      (str/join))))
 
 
 (defn rev [digits]
@@ -34,12 +36,9 @@
   (concat (seq digits) [\0] (rev digits)))
 
 
-(def LEN1 272)
-(def LEN2 35651584)
 
-(def sek
-  (let [len       LEN2
-        token-len (count input)
+(defn gen-seq [input len]
+  (let [token-len (count input)
         too-short #(let [csep (count %)
                          ctok (inc csep)]
                      (-> token-len (* ctok) (+ csep) (< len)))
@@ -52,10 +51,11 @@
         odd-token (vec input)
         evn-token (vec (rev input))
         tokens    (cycle [odd-token evn-token])]
-    (doall (take len (mapcat conj tokens seps)))))
+    (take len (mapcat conj tokens seps))))
 
-;(assert (= (checksum input 272) "10010010110011010"))
 
-(set! *print-length* 30)
+(defn p2 [input len]
+  (checksum len (gen-seq input len)))
 
-(time (doall (check-digits sek)))
+(time (assert (= "10010010110011010" (p2 input 272))))
+(time (assert (= "01010100101011100" (p2 input 35651584))))
