@@ -59,3 +59,6 @@
 
 (time (assert (= "10010010110011010" (p2 input 272))))
 (time (assert (= "01010100101011100" (p2 input 35651584))))
+
+"Elapsed time: 0.758346 msecs"
+"Elapsed time: 37930.696068 msecs"
