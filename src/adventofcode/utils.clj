@@ -11,6 +11,13 @@
 (defn spyf>  [x f] (prn (f x)) x)
 (defn spyf>> [f x] (prn (f x)) x)
 
+(defn queue [init] (into PersistentQueue/EMPTY init))
+
+(defn index-by
+  ([kf    coll] (persistent! (reduce #(assoc! %1 (kf %2)     %2)  (transient {}) coll)))
+  ([kf vf coll] (persistent! (reduce #(assoc! %1 (kf %2) (vf %2)) (transient {}) coll))))
+
+
 (defn to-int [^String s]
   (Long/parseLong s 10))
 

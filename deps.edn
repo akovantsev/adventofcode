@@ -1,7 +1,10 @@
-{:deps  {org.clojure/clojure            {:mvn/version "1.10.0"}
+{:deps  {org.clojure/clojure            {:mvn/version "1.11.1"}
          org.clojure/data.json          {:mvn/version "0.2.6"}
          org.clojure/data.priority-map  {:mvn/version "0.0.10"}
          shams/priority-queue           {:mvn/version "0.1.2"}
          instaparse                     {:mvn/version "1.4.10"}
-         org.clojure/math.combinatorics {:mvn/version "0.1.4"}}
+         org.clojure/math.combinatorics {:mvn/version "0.1.4"}
+         github-akovantsev/blet         {:git/url "https://github.com/akovantsev/blet"
+                                         :git/sha "07d2f89c46a14e95a366dc319ecc31179c18266c"}}
+
  :paths ["src" "resources"]}
