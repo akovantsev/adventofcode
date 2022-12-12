@@ -11,9 +11,9 @@
 
 (defn parse [ss]
   (loop [todo ss x 0 y 0 m {}]
-    (blet [a     (first todo)
+    (blet [todo- (rest todo)
+           a     (first todo)
            i     (SCORE (ALIAS a a))
-           todo- (rest todo)
            x+    (inc x)
            y+    (inc y)
            m+    (assoc m [x y] i)
@@ -21,13 +21,12 @@
            me    (assoc m+ ::end-xy [x y])]
       (cond
         (empty? todo), m
-        (= \newline a) (recur todo- 0 y+ m)
-        (= \S a),,,,,, (recur todo- x+ y ms)
-        (= \E a),,,,,, (recur todo- x+ y me)
+        (= a \newline) (recur todo- 0 y+ m)
+        (= a \S),,,,,, (recur todo- x+ y ms)
+        (= a \E),,,,,, (recur todo- x+ y me)
         :else,,,,,,,,, (recur todo- x+ y m+)))))
 
 (parse sample)
-
 
 (defn solve [MAP start-xys]
   (let [{:keys [::end-xy]} MAP
