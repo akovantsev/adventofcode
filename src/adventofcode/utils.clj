@@ -97,6 +97,7 @@
      [dx  y] ,,,,,, [ix  y]
      [dx iy] [x iy] [ix iy]]))
 
+(defn fixed-point [xs] (reduce #(if (= %1 %2) (reduced %1) %2) xs))
 
 (defn shortest-distance [floor next-tiles start finish]
   (loop [shortest Integer/MAX_VALUE
