@@ -21,6 +21,8 @@
 (defn to-int [^String s]
   (Long/parseLong s 10))
 
+(defn str->ints [s] (->> s (re-seq #"-?\d+") (map to-int)))
+
 (def char-to-int {\0 0 \1 1 \2 2 \3 3 \4 4 \5 5 \6 6 \7 7 \8 8 \9 9})
 
 (defmacro locals-map
