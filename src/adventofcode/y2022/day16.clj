@@ -62,7 +62,7 @@
       (cond
         done? (get shortest to)
         slow? (recur paths- shortest)
-        end?, (recur paths- shortest+)
+        end?  (recur paths- shortest+)
         :else (recur paths+ shortest+)))))
 
 
@@ -89,21 +89,22 @@
                        best best]
                   (blet [todo-    (rest todo)
                          [at t open score] (first todo)
-                         k [open t]
+                         k        [open t]
                          best+    (assoc best k score)
                          too-slow (< score (best k -1))
                          state+   (fn [[id cost]]
                                     (when (<= cost t)
                                       (when-not (open id)
-                                        (blet [t- (- t 1 cost)
-                                               o+ (conj open id)
-                                               s+ (-> id DB ::rate (* t-) (+ score))]
+                                        (let [t- (- t 1 cost)
+                                              o+ (conj open id)
+                                              s+ (-> id DB ::rate (* t-) (+ score))]
                                           [id t- o+ s+]))))
                          todo+    (->> at G (keep state+) (into todo-))]
                     (cond
                       (empty? todo) best
-                      too-slow,,,,, (recur todo- best)
-                      :else,,,,,,,, (recur todo+ best+)))))
+                      too-slow      (recur todo- best)
+                      :else         (recur todo+ best+)))))
+
         TODO1 [[START TIMELIMIT2 #{} 0]]
         BEST1 (half TODO1 (pm/priority-map-by >))
 
