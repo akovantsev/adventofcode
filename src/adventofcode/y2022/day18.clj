@@ -47,15 +47,19 @@
                       (< z minz) (< maxz z)))]
     (loop [todo      [[minx miny minz]]
            reachable #{}]
-      (blet [todo- (rest todo)
-             xyz   (first todo)
-             xyzs  (->> xyz neighbours3d6 (remove lava) (remove too-far))
-             been+ (conj reachable xyz)
-             todo+ (->> todo- (into xyzs) (remove been+))]
+      (blet [been+ (into reachable todo)
+             todo+ (->> todo
+                     (into []
+                       (comp
+                         (mapcat neighbours3d6)
+                         (distinct)
+                         (remove lava)
+                         (remove too-far)
+                         (remove been+))))]
         (if (empty? todo)
           (->> faces (filter reachable) count)
           (recur todo+ been+))))))
 
 
-(assert (= 58 (p2 sample)))
-(assert (= 2604 (p2 input)))
+(time (assert (= 58 (p2 sample))))
+(time (assert (= 2604 (p2 input))))
