@@ -11,6 +11,8 @@
 (defn spyf>  [x f] (prn (f x)) x)
 (defn spyf>> [f x] (prn (f x)) x)
 
+(def sconj (fnil conj #{}))
+
 (defn queue [init] (into PersistentQueue/EMPTY init))
 
 (defn index-by
